@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package errors;
+
+option go_package = "github.com/go-ceres/ceres/errors";
+option java_multiple_files = true;
+option java_package = "com.github.ceres.errors";
+option objc_class_prefix = "CeresErrors";
+
+import "google/protobuf/descriptor.proto";
+
+message Status {
+  int32 code = 1; // 错误码
+  string reason = 2; // 错误原因
+  string message = 3; // 错误信息
+  map<string, string> metadata = 4; // 附加数据
+};
+
+extend google.protobuf.EnumOptions {
+  int32 default_code = 1108;
+}
+
+extend google.protobuf.EnumValueOptions {
+  int32 code = 1109;
+}
+
+
