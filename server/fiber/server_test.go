@@ -31,7 +31,7 @@ func TestFiberServer(t *testing.T) {
 		}
 	}
 	srv := New()
-	srv.Get("/member/user/:id", func(context http.Context) error {
+	srv.GET("/member/user/:id", func(context http.Context) error {
 		var in map[string]interface{}
 		if err := context.BindQuery(&in); err != nil {
 			return err
