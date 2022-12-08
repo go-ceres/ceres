@@ -3,7 +3,7 @@ module github.com/go-ceres/ceres/cmd/protoc-gen-ceres-error
 go 1.18
 
 require (
-	github.com/go-ceres/ceres v0.0.3
+	github.com/go-ceres/ceres v0.0.4-rc1
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -17,4 +17,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/go-ceres/ceres v0.0.3 => ../../
+replace github.com/go-ceres/ceres => ../../
