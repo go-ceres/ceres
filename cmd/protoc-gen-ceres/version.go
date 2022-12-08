@@ -15,4 +15,6 @@
 
 package main
 
-const Version = "0.0.2"
+import "github.com/go-ceres/ceres/version"
+
+const Version = version.CeresVersion

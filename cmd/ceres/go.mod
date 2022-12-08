@@ -4,13 +4,13 @@ go 1.18
 
 require (
 	github.com/emicklei/proto v1.11.0
-	github.com/go-ceres/ceres v0.0.1
+	github.com/go-ceres/ceres v0.0.3
 	github.com/go-ceres/cli/v2 v2.2.3
 	github.com/google/wire v0.5.0
 	github.com/gookit/gcli/v3 v3.1.0
 )
 
-replace github.com/go-ceres/ceres v0.0.1 => ../../
+replace github.com/go-ceres/ceres v0.0.3 => ../../
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
