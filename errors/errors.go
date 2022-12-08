@@ -30,6 +30,8 @@ const (
 	UnknownCode = 500
 	// UnknownReason 未知的错误信息
 	UnknownReason = ""
+	// SupportPackageIsVersion1 protoc required constant
+	SupportPackageIsVersion1 = true
 )
 
 type Error struct {

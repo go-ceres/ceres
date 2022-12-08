@@ -25,6 +25,16 @@ func IsBadRequest(err error) bool {
 	return Code(err) == 400
 }
 
+// Unauthorized 权限认证失败错误
+func Unauthorized(reason, message string) *Error {
+	return New(401, reason, message)
+}
+
+// IsUnauthorized 判断是否是权限错误
+func IsUnauthorized(err error) bool {
+	return Code(err) == 401
+}
+
 // InternalServer 内部服务器错误
 func InternalServer(reason, message string) *Error {
 	return New(500, reason, message)

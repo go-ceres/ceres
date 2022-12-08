@@ -611,3 +611,8 @@ func (r *Client) TTL(key string) (int64, error) {
 		return int64(result.Seconds()), nil
 	}
 }
+
+// Subscribe 监听器
+func (r *Client) Subscribe(keys ...string) *redis.PubSub {
+	return r.client.Subscribe(keys...)
+}

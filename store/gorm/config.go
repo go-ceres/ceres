@@ -23,6 +23,8 @@ import (
 	"time"
 )
 
+const ModName = "store.gorm"
+
 // Config 配置信息
 type Config struct {
 	Drive           string        `json:"drive"`           // 驱动
@@ -67,6 +69,7 @@ func DefaultConfig() *Config {
 		ConnMaxLifetime: time.Hour,
 		GormConfig:      &GormConfig{},
 		LogConfig:       DefaultLogConfig(),
+		logger:          logger.With(logger.FieldMod(ModName)),
 	}
 }
 
@@ -110,8 +113,8 @@ func (c *Config) initLogger() {
 	c.GormConfig.Logger = dbLog
 }
 
-// WithDialector 单独设置Dialector
-func (c *Config) WithDialector(dialect Dialector) *Config {
+// SetDialector 单独设置Dialector
+func (c *Config) SetDialector(dialect Dialector) *Config {
 	c.dialect = dialect
 	return c
 }
@@ -122,14 +125,14 @@ func (c *Config) Build() *DB {
 	c.initLogger()
 	// 创建驱动
 	if driver, ok := drivers[c.Drive]; !ok {
-		logger.Panicf("%s driver is not set", c.Drive)
+		c.logger.Fatalf("%s driver is not set", c.Drive)
 	} else {
 		c.dialect = driver(c.DNS)
 	}
 	// 数据库
 	db, err := Open(c.dialect, c)
 	if err != nil {
-		logger.Panicf("open gorm", "err", err, "value", c)
+		c.logger.Fatalf("open gorm", "err", err, "value", c)
 	}
 	return db
 }
