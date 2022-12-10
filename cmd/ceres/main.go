@@ -17,10 +17,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/model"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv"
-	"github.com/go-ceres/ceres/logger"
 	"github.com/go-ceres/ceres/version"
 	"github.com/go-ceres/cli/v2"
+	"github.com/sirupsen/logrus"
 	"os"
 	"runtime"
 )
@@ -30,6 +31,11 @@ var rootCommand = []*cli.Command{
 		Name:        "srv",
 		Subcommands: srv.Commands,
 		Usage:       "generate a service for ceres",
+	},
+	{
+		Name:        "model",
+		Subcommands: model.Commands,
+		Usage:       "generate model for ceres",
 	},
 	{
 		Name: "build",
@@ -52,7 +58,7 @@ func main() {
 	app.Flags = append(app.Flags)
 	app.ExitErrHandler = func(context *cli.Context, err error) {
 		_ = cli.ShowCommandHelp(context, context.Command.Name)
-		logger.Error("Unexpected exit", logger.FieldError(err))
+		logrus.Info(err)
 	}
 	_ = app.Run(os.Args)
 }

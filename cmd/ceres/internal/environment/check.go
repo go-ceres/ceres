@@ -87,7 +87,7 @@ command 'ceres env check --install' to install it, for details, please execute c
 			log.Info("[ceres-env]: %q is installed", e.name)
 			continue
 		}
-		log.Warn("[ceres-env]: %q is not found in PATH", e.name)
+		log.Warning("[ceres-env]: %q is not found in PATH", e.name)
 		if install {
 			install := func() {
 				log.Info("[ceres-env]: preparing to install %q", e.name)

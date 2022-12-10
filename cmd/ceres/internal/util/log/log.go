@@ -15,42 +15,83 @@
 
 package log
 
-import "github.com/go-ceres/ceres/logger"
+import (
+	"fmt"
+	"github.com/logrusorgru/aurora"
+	"os"
+)
 
 type Log struct {
 	enable bool // 啰嗦模式
 }
 
+// NewLog returns an instance of colorConsole
 func NewLog(enable bool) *Log {
 	return &Log{
 		enable: enable,
 	}
 }
 
-func (l *Log) Info(format string, args ...interface{}) {
-	if !l.enable {
+func (c *Log) Info(format string, a ...interface{}) {
+	if !c.enable {
 		return
 	}
-	logger.Infof(format, args...)
+	msg := fmt.Sprintf(format, a...)
+	fmt.Println(msg)
 }
 
-func (l *Log) Debug(format string, args ...interface{}) {
-	if !l.enable {
+func (c *Log) Debug(format string, a ...interface{}) {
+	if !c.enable {
 		return
 	}
-	logger.Debugf(format, args...)
+	msg := fmt.Sprintf(format, a...)
+	println(aurora.BrightCyan(msg))
 }
 
-func (l *Log) Warn(format string, args ...interface{}) {
-	if !l.enable {
+func (c *Log) Success(format string, a ...interface{}) {
+	if !c.enable {
 		return
 	}
-	logger.Warnf(format, args...)
+	msg := fmt.Sprintf(format, a...)
+	println(aurora.BrightGreen(msg))
 }
 
-func (l *Log) Error(format string, args ...interface{}) {
-	if !l.enable {
+func (c *Log) Warning(format string, a ...interface{}) {
+	if !c.enable {
 		return
 	}
-	logger.Errorf(format, args)
+	msg := fmt.Sprintf(format, a...)
+	println(aurora.BrightYellow(msg))
+}
+
+func (c *Log) Error(format string, a ...interface{}) {
+	if !c.enable {
+		return
+	}
+	msg := fmt.Sprintf(format, a...)
+	println(aurora.BrightRed(msg))
+}
+
+func (c *Log) Fatalln(format string, a ...interface{}) {
+	if !c.enable {
+		return
+	}
+	c.Error(format, a...)
+	os.Exit(1)
+}
+
+func (c *Log) MarkDone() {
+	if !c.enable {
+		return
+	}
+	c.Success("Done.")
+}
+
+func (c *Log) Must(err error) {
+	if !c.enable {
+		return
+	}
+	if err != nil {
+		c.Fatalln("%+v", err)
+	}
 }

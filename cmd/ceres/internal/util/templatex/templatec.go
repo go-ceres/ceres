@@ -60,6 +60,11 @@ func (t *Template) GoFmt(format bool) *Template {
 	return t
 }
 
+func (t *Template) FormatGo(format bool) *Template {
+	t.goFmt = format
+	return t
+}
+
 // SaveTo writes the codes to the target path
 func (t *Template) SaveTo(data interface{}, path string, forceUpdate bool) error {
 	if pathx.FileExists(path) && !forceUpdate {
