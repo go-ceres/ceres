@@ -20,6 +20,7 @@ import (
 	"github.com/go-ceres/ceres/config"
 	"github.com/go-ceres/ceres/internal/matcher"
 	"github.com/go-ceres/ceres/logger"
+	"github.com/go-ceres/ceres/middleware"
 	"google.golang.org/grpc"
 	"time"
 )
@@ -90,6 +91,12 @@ func (c *Config) SetNetwork(Network string) *Config {
 
 func (c *Config) SetAddress(Address string) *Config {
 	c.Address = Address
+	return c
+}
+
+// AddMiddleware 添加中间件
+func (c *Config) AddMiddleware(middlewares ...middleware.Middleware) *Config {
+	c.middleware.Use(middlewares...)
 	return c
 }
 

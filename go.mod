@@ -12,10 +12,12 @@ require (
 	github.com/gofiber/fiber/v2 v2.40.1
 	github.com/google/uuid v1.3.0
 	github.com/imdario/mergo v0.3.13
+	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/spf13/pflag v1.0.5
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/sync v0.1.0
+	golang.org/x/text v0.4.0
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.51.0
 	google.golang.org/protobuf v1.28.1
@@ -57,5 +59,4 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
 )
