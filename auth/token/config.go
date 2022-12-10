@@ -68,7 +68,7 @@ func ScanRawConfig(key string) *Config {
 }
 
 func ScanConfig(name ...string) *Config {
-	key := "ceres.application.auth"
+	key := "ceres.application.auth.token"
 	if len(name) > 0 {
 		key = key + "." + name[0]
 	}
