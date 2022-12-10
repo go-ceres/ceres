@@ -75,68 +75,84 @@ func ScanConfig(name ...string) *Config {
 	return ScanRawConfig(key)
 }
 
-func (c *Config) SetLogicType(LogicType string) {
+func (c *Config) SetLogicType(LogicType string) *Config {
 	c.LogicType = LogicType
+	return c
 }
 
-func (c *Config) SetTokenName(TokenName string) {
+func (c *Config) SetTokenName(TokenName string) *Config {
 	c.TokenName = TokenName
+	return c
 }
 
-func (c *Config) SetTimeout(Timeout int64) {
+func (c *Config) SetTimeout(Timeout int64) *Config {
 	c.Timeout = Timeout
+	return c
 }
 
-func (c *Config) SetActivityTimeout(ActivityTimeout int64) {
+func (c *Config) SetActivityTimeout(ActivityTimeout int64) *Config {
 	c.ActivityTimeout = ActivityTimeout
+	return c
 }
 
-func (c *Config) SetIsConcurrent(IsConcurrent bool) {
+func (c *Config) SetIsConcurrent(IsConcurrent bool) *Config {
 	c.IsConcurrent = IsConcurrent
+	return c
 }
 
-func (c *Config) SetIsShare(IsShare bool) {
+func (c *Config) SetIsShare(IsShare bool) *Config {
 	c.IsShare = IsShare
+	return c
 }
 
-func (c *Config) SetTokenStyle(TokenStyle TokenStyle) {
+func (c *Config) SetTokenStyle(TokenStyle TokenStyle) *Config {
 	c.TokenStyle = TokenStyle
+	return c
 }
 
-func (c *Config) SetAutoRenew(AutoRenew bool) {
+func (c *Config) SetAutoRenew(AutoRenew bool) *Config {
 	c.AutoRenew = AutoRenew
+	return c
 }
 
-func (c *Config) SetTokenPrefix(TokenPrefix string) {
+func (c *Config) SetTokenPrefix(TokenPrefix string) *Config {
 	c.TokenPrefix = TokenPrefix
+	return c
 }
 
-func (c *Config) SetIsLog(IsLog bool) {
+func (c *Config) SetIsLog(IsLog bool) *Config {
 	c.IsLog = IsLog
+	return c
 }
 
-func (c *Config) SetCheckLogin(CheckLogin bool) {
+func (c *Config) SetCheckLogin(CheckLogin bool) *Config {
 	c.CheckLogin = CheckLogin
+	return c
 }
 
-func (c *Config) SetStorage(storage Storage) {
+func (c *Config) SetStorage(storage Storage) *Config {
 	c.storage = storage
+	return c
 }
 
-func (c *Config) SetPermission(permission Permission) {
+func (c *Config) SetPermission(permission Permission) *Config {
 	c.permission = permission
+	return c
 }
 
-func (c *Config) SetTokenBuilder(tokenBuilder TokenBuilder) {
+func (c *Config) SetTokenBuilder(tokenBuilder TokenBuilder) *Config {
 	c.tokenBuilder = tokenBuilder
+	return c
 }
 
-func (c *Config) SetListener(listener Listener) {
+func (c *Config) SetListener(listener Listener) *Config {
 	c.listener = listener
+	return c
 }
 
-func (c *Config) SetLogger(logger *logger.Helper) {
+func (c *Config) SetLogger(logger *logger.Helper) *Config {
 	c.logger = logger
+	return c
 }
 
 func (c *Config) Build() *Logic {

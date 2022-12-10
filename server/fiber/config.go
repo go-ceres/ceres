@@ -76,48 +76,57 @@ func ScanConfig(name ...string) *Config {
 }
 
 // SetNetwork 设置网络类型
-func (c *Config) SetNetwork(Network string) {
+func (c *Config) SetNetwork(Network string) *Config {
 	c.Network = Network
+	return c
 }
 
 // SetAddress 设置服务器地址
-func (c *Config) SetAddress(Address string) {
+func (c *Config) SetAddress(Address string) *Config {
 	c.Address = Address
+	return c
 }
 
 // SetTimeout 设置超时
-func (c *Config) SetTimeout(Timeout time.Duration) {
+func (c *Config) SetTimeout(Timeout time.Duration) *Config {
 	c.Timeout = Timeout
+	return c
 }
 
 // SetTlsConf 设置tls认证
-func (c *Config) SetTlsConf(TlsConf *TlsConfig) {
+func (c *Config) SetTlsConf(TlsConf *TlsConfig) *Config {
 	c.TlsConf = TlsConf
+	return c
 }
 
 // SetEne 设置错误处理函数
-func (c *Config) SetEne(ene EncodeErrorFunc) {
+func (c *Config) SetEne(ene EncodeErrorFunc) *Config {
 	c.ene = ene
+	return c
 }
 
 // SetEnc 设置响应编码器
-func (c *Config) SetEnc(enReply EncodeReplyFunc) {
+func (c *Config) SetEnc(enReply EncodeReplyFunc) *Config {
 	c.enReply = enReply
+	return c
 }
 
 // SetDecQuery 设置请求解码器
-func (c *Config) SetDecQuery(decQuery DecodeRequestFunc) {
+func (c *Config) SetDecQuery(decQuery DecodeRequestFunc) *Config {
 	c.decQuery = decQuery
+	return c
 }
 
 // SetDecParams 设置参数解码器
-func (c *Config) SetDecParams(decParams DecodeRequestFunc) {
+func (c *Config) SetDecParams(decParams DecodeRequestFunc) *Config {
 	c.decParams = decParams
+	return c
 }
 
 // SetLogger 设置日志
-func (c *Config) SetLogger(logger *logger.Helper) {
+func (c *Config) SetLogger(logger *logger.Helper) *Config {
 	c.logger = logger
+	return c
 }
 
 // Build 构建fiber服务
