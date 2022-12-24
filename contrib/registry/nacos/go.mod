@@ -1,7 +1,7 @@
 module github.com/go-ceres/ceres/contrib/registry/nacos
 
 require (
-	github.com/go-ceres/ceres v0.0.4-rc2
+	github.com/go-ceres/ceres v0.0.4-rc4
 	github.com/nacos-group/nacos-sdk-go v1.0.9
 )
 
