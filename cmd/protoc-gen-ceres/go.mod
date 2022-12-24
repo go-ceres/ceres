@@ -3,7 +3,7 @@ module github.com/go-ceres/ceres/cmd/protoc-gen-ceres
 go 1.18
 
 require (
-	github.com/go-ceres/ceres v0.0.4-rc1
+	github.com/go-ceres/ceres v0.0.4-rc2
 	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6
 	google.golang.org/protobuf v1.28.1
 )

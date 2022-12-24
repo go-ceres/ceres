@@ -136,35 +136,34 @@ var ProtocAction cli.ActionFunc = func(ctx *cli.Context) error {
 		"0",
 	)
 	if registry != "none" {
-		component := &config.Component{
+		registryComponent := &config.Component{
+			Type: config.Registry,
+			ExtraFunc: `func NewRegistry(registry *` + registry + `.Registry) transport.Registry {
+    return registry
+}
+
+func NewDiscovery(registry *` + registry + `.Registry) transport.Discover  {
+    return registry
+}`,
 			CamelName: stringx.NewString(registry).ToCamel(),
 			Name:      stringx.NewString(registry),
 			ImportPackage: []string{
 				fmt.Sprintf(`"github.com/go-ceres/ceres/contrib/registry/%s"`, registry),
-				`"github.com/go-ceres/ceres/registry"`,
+				`"github.com/go-ceres/ceres/pkg/transport"`,
 			},
 			InitStr: registry + `.ScanConfig().Build()`,
 			ConfigStr: func() string {
 				if registry == "nacos" {
-					return `[ceres.application.registry.` + registry + `]
+					return `[application.transport.registry.` + registry + `]
     Address=["http://127.0.0.1:8488"]
 `
 				}
 				return ""
 			}(),
-			TypeName: "registry.Registry",
+			TypeName: "*" + registry + ".Registry",
 		}
-		conf.Components = append(conf.Components, component)
-		conf.Registry = component
-	}
-	// 注册中心
-	server := interact.SelectOne(
-		"please select http server!",
-		[]string{"none", "fiber"},
-		"0",
-	)
-	if server != "none" {
-		conf.HttpServer = server
+		conf.Components = append(conf.Components, registryComponent)
+		conf.Registry = true
 	}
 	// orm
 	orm := interact.SelectOne(
@@ -174,18 +173,22 @@ var ProtocAction cli.ActionFunc = func(ctx *cli.Context) error {
 	)
 	if orm != "none" {
 		conf.Components = append(conf.Components, &config.Component{
+			Type:      config.Orm,
 			CamelName: stringx.NewString(orm).ToCamel(),
 			Name:      stringx.NewString(orm),
 			ImportPackage: []string{
-				fmt.Sprintf(`"github.com/go-ceres/ceres/store/%s"`, orm),
+				fmt.Sprintf(`"github.com/go-ceres/ceres/pkg/common/store/%s"`, orm),
 			},
 			InitStr: orm + `.ScanConfig().Build()`,
-			ConfigStr: `[ceres.application.store.` + orm + `]
+			ConfigStr: `[application.store.` + orm + `]
     dns="user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 `,
 			TypeName: "*" + orm + ".DB",
 		})
 	}
+
+	// 是否增加http服务
+	conf.HttpServer = interact.Confirm("add http server?", false)
 
 	// 创建生成器
 	g := generator.NewGenerator(ctx, "go_ceres", verbose)

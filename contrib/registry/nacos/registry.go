@@ -19,8 +19,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-ceres/ceres/logger"
-	"github.com/go-ceres/ceres/registry"
+	"github.com/go-ceres/ceres/pkg/common/logger"
+	"github.com/go-ceres/ceres/pkg/transport"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -31,23 +31,31 @@ import (
 	"strings"
 )
 
-var _ registry.Registry = (*Registry)(nil)
+var _ transport.Registry = (*Registry)(nil)
 
 // Registry nacos注册中心实现
 type Registry struct {
-	config       *Config
+	options      *Options
 	client       naming_client.INamingClient
 	srvConfig    []constant.ServerConfig
 	clientConfig *constant.ClientConfig
 }
 
-func newRegistry(c *Config) *Registry {
+func New(opts ...Option) *Registry {
+	options := DefaultOptions()
+	for _, opt := range opts {
+		opt(options)
+	}
+	return NewWithOptions(options)
+}
+
+func NewWithOptions(options *Options) *Registry {
 	reg := &Registry{
-		config:    c,
+		options:   options,
 		srvConfig: make([]constant.ServerConfig, 0),
 	}
 	// 初始化配置信息
-	for _, addr := range c.Address {
+	for _, addr := range options.Address {
 		parse, err := url.Parse(addr)
 		if err != nil {
 			logger.Panicf("[registry.nacos] url parse panic url：%v", addr)
@@ -76,33 +84,33 @@ func newRegistry(c *Config) *Registry {
 	}
 
 	client, err := clients.NewNamingClient(vo.NacosClientParam{
-		ClientConfig:  c.ClientConfig,
+		ClientConfig:  options.ClientOptions.ToClientConfig(),
 		ServerConfigs: reg.srvConfig,
 	})
 	if err != nil {
-		logger.Panicf("[registry.nacos] nacos client init error：%v")
+		panic(err)
 	}
 	reg.client = client
 	return reg
 }
 
 // GetService 获取服务
-func (r *Registry) GetService(ctx context.Context, serviceName string) ([]*registry.ServiceInfo, error) {
+func (r *Registry) GetService(ctx context.Context, serviceName string) ([]*transport.ServiceInfo, error) {
 	res, err := r.client.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: serviceName,
-		GroupName:   r.config.Group,
+		GroupName:   r.options.Group,
 		HealthyOnly: true,
 	})
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*registry.ServiceInfo, 0, len(res))
+	items := make([]*transport.ServiceInfo, 0, len(res))
 	for _, in := range res {
-		kind := r.config.Kind
+		kind := r.options.Kind
 		if k, ok := in.Metadata["kind"]; ok {
 			kind = k
 		}
-		items = append(items, &registry.ServiceInfo{
+		items = append(items, &transport.ServiceInfo{
 			ID:        in.InstanceId,
 			Name:      in.ServiceName,
 			Version:   in.Metadata["version"],
@@ -114,12 +122,12 @@ func (r *Registry) GetService(ctx context.Context, serviceName string) ([]*regis
 }
 
 // Watch 监听服务
-func (r *Registry) Watch(ctx context.Context, serviceName string) (registry.Watcher, error) {
-	return newWatcher(ctx, r.client, serviceName, r.config.Group, r.config.Kind, []string{r.config.Cluster})
+func (r *Registry) Watch(ctx context.Context, serviceName string) (transport.Watcher, error) {
+	return newWatcher(ctx, r.client, serviceName, r.options.Group, r.options.Kind, []string{r.options.Cluster})
 }
 
 // Register 注册服务
-func (r *Registry) Register(ctx context.Context, service *registry.ServiceInfo) error {
+func (r *Registry) Register(ctx context.Context, service *transport.ServiceInfo) error {
 	if service.Name == "" {
 		return errors.New("ServiceInfo.name is empty")
 	}
@@ -154,13 +162,13 @@ func (r *Registry) Register(ctx context.Context, service *registry.ServiceInfo) 
 			Ip:          host,
 			Port:        uint64(p),
 			ServiceName: service.Name + "." + u.Scheme,
-			Weight:      r.config.Weight,
+			Weight:      r.options.Weight,
 			Enable:      true,
 			Healthy:     true,
 			Ephemeral:   true,
 			Metadata:    rmd,
-			ClusterName: r.config.Cluster,
-			GroupName:   r.config.Group,
+			ClusterName: r.options.Cluster,
+			GroupName:   r.options.Group,
 		})
 		if e != nil {
 			return fmt.Errorf("register serviceInfo err %v,%v", e, endpoint)
@@ -170,7 +178,7 @@ func (r *Registry) Register(ctx context.Context, service *registry.ServiceInfo) 
 }
 
 // Deregister 卸载服务
-func (r *Registry) Deregister(ctx context.Context, service *registry.ServiceInfo) error {
+func (r *Registry) Deregister(ctx context.Context, service *transport.ServiceInfo) error {
 	for _, endpoint := range service.Endpoints {
 		u, err := url.Parse(endpoint)
 		if err != nil {
@@ -188,8 +196,8 @@ func (r *Registry) Deregister(ctx context.Context, service *registry.ServiceInfo
 			Ip:          host,
 			Port:        uint64(p),
 			ServiceName: service.Name + "." + u.Scheme,
-			GroupName:   r.config.Group,
-			Cluster:     r.config.Cluster,
+			GroupName:   r.options.Group,
+			Cluster:     r.options.Cluster,
 			Ephemeral:   true,
 		}); err != nil {
 			return err

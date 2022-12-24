@@ -1,7 +1,7 @@
 //    Copyright 2022. ceres
 //    Author https://github.com/go-ceres/ceres
 //
-//    Licensed under the Apache License, CeresVersion 2.0 (the "License");
+//    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
 //
@@ -17,9 +17,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-ceres/ceres"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/model"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv"
-	"github.com/go-ceres/ceres/version"
 	"github.com/go-ceres/cli/v2"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -53,7 +53,7 @@ func main() {
 	app.Usage = "a cli tool for ceres"
 	app.Description = "a cli tool for ceres"
 	app.UseShortOptionHandling = true
-	app.Version = fmt.Sprintf("%s %s/%s", version.CeresVersion, runtime.GOOS, runtime.GOARCH)
+	app.Version = fmt.Sprintf("%s %s/%s", ceres.Version, runtime.GOOS, runtime.GOARCH)
 	app.Commands = rootCommand
 	app.Flags = append(app.Flags)
 	app.ExitErrHandler = func(context *cli.Context, err error) {

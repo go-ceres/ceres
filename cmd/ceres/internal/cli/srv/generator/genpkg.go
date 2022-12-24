@@ -41,7 +41,10 @@ func (g *Generator) genPkg(ctx DirContext, conf *config.Config) error {
 	}
 	newFuncNames := make([]string, 0)
 	for _, component := range conf.Components {
-		newFuncNames = append(newFuncNames, "New"+component.Name.ToCamel())
+		newFuncNames = append(newFuncNames, "New"+component.CamelName)
+		if component.Type == config.Registry {
+			newFuncNames = append(newFuncNames, "NewRegistry,NewDiscovery")
+		}
 	}
 	fileName := filepath.Join(dir.Filename, packageFileName+".go")
 	text, err := pathx.LoadTpl(category, provideTemplateFilename, provideTemplate)

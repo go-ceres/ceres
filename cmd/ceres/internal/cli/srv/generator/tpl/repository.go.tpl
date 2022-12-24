@@ -1,7 +1,7 @@
 package repository
 
 import (
-    "github.com/go-ceres/ceres/store/gorm"
+    "github.com/go-ceres/ceres/pkg/common/store/gorm"
 	{{.Imports}}
 )
 

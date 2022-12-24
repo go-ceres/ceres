@@ -16,37 +16,37 @@
 package matcher
 
 import (
-	"github.com/go-ceres/ceres/middleware"
+	"github.com/go-ceres/ceres/pkg/transport"
 	"sort"
 	"strings"
 )
 
 // Matcher 中间件匹配器
 type Matcher interface {
-	Use(mw ...middleware.Middleware)
-	Add(selector string, mw ...middleware.Middleware)
-	Match(operator string) []middleware.Middleware
+	Use(mw ...transport.Middleware)
+	Add(selector string, mw ...transport.Middleware)
+	Match(operator string) []transport.Middleware
 }
 
 // New 创建
 func New() Matcher {
 	return &matcher{
-		matchs: make(map[string][]middleware.Middleware),
+		matchs: make(map[string][]transport.Middleware),
 	}
 }
 
 type matcher struct {
 	prefix []string
-	data   []middleware.Middleware
-	matchs map[string][]middleware.Middleware
+	data   []transport.Middleware
+	matchs map[string][]transport.Middleware
 }
 
-func (m *matcher) Use(ms ...middleware.Middleware) {
+func (m *matcher) Use(ms ...transport.Middleware) {
 	m.data = ms
 }
 
 // Add 添加中间件到匹配器
-func (m *matcher) Add(selector string, mw ...middleware.Middleware) {
+func (m *matcher) Add(selector string, mw ...transport.Middleware) {
 	if strings.HasPrefix(selector, "*") {
 		selector = strings.TrimPrefix(selector, "*")
 		m.prefix = append(m.prefix, selector)
@@ -58,8 +58,8 @@ func (m *matcher) Add(selector string, mw ...middleware.Middleware) {
 }
 
 // Match 匹配
-func (m *matcher) Match(operation string) []middleware.Middleware {
-	ms := make([]middleware.Middleware, 0, len(m.data))
+func (m *matcher) Match(operation string) []transport.Middleware {
+	ms := make([]transport.Middleware, 0, len(m.data))
 	if len(m.data) > 0 {
 		ms = append(ms, m.data...)
 	}

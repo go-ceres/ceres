@@ -15,6 +15,8 @@
 
 package main
 
-import "github.com/go-ceres/ceres/version"
+import (
+	"github.com/go-ceres/ceres"
+)
 
-const Version = version.CeresVersion
+const Version = ceres.Version

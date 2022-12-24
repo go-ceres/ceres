@@ -17,13 +17,20 @@ package config
 
 import "github.com/go-ceres/ceres/cmd/ceres/internal/util/stringx"
 
+type ComponentType int8
+
+const (
+	Registry ComponentType = iota
+	Orm
+)
+
 // Config 新建项目时的配置文件
 type Config struct {
 	Dist         string       // 项目输出路径，例如: .
 	ProtocOut    string       // proto文件输出目录
 	ConfigSource string       // 配置组件的类型，例如：file
-	Registry     *Component   // 注册中心，例如：etcd
-	HttpServer   string       // http服务实现
+	Registry     bool         // 注册中心，例如：etcd
+	HttpServer   bool         // http服务实现
 	ProtoPath    []string     // proto_path 参数
 	GoOpt        []string     // protoc 的 opt参数
 	GoGrpcOpt    []string     // protoc 的go-grpc_opt 参数
@@ -35,6 +42,8 @@ type Config struct {
 
 // Component 选择的额外组件
 type Component struct {
+	Type          ComponentType  // 组件类别
+	ExtraFunc     string         // 额外的字符串
 	CamelName     string         // 应用于 方法的名称
 	Name          stringx.String // 组件名称
 	ImportPackage []string       // 需要导入的包

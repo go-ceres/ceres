@@ -39,5 +39,5 @@ func (g *Generator) genAcl(ctx DirContext, conf *config.Config) error {
 	return templatex.With("acl-provide").GoFmt(true).Parse(text).SaveTo(map[string]interface{}{
 		"PackageName":   "acl",
 		"ProvideSetStr": ProvideSetStr,
-	}, serverFile, true)
+	}, serverFile, false)
 }

@@ -22,12 +22,11 @@ import (
 	"text/template"
 )
 
-//go:embed template.tpl
+//go:embed template.go.tpl
 var ceresTemplate string
 
 type serviceDesc struct {
-	ClientPath  string
-	ServerPath  string
+	HttpPath    string
 	ServiceType string // Greeter
 	ServiceName string // helloworld.Greeter
 	Metadata    string // api/helloworld/helloworld.proto
@@ -45,8 +44,6 @@ type methodDesc struct {
 	// http_rule
 	Path         string
 	Method       string
-	HasVars      bool
-	HasBody      bool
 	Body         string
 	ResponseBody string
 }

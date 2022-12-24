@@ -4,18 +4,20 @@ go 1.18
 
 require (
 	github.com/emicklei/proto v1.11.0
-	github.com/go-ceres/ceres v0.0.4-rc1
+	github.com/go-ceres/ceres v0.0.4-rc2
 	github.com/go-ceres/cli/v2 v2.2.3
 	github.com/google/wire v0.5.0
 	github.com/gookit/gcli/v3 v3.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/sirupsen/logrus v1.6.0
+	gorm.io/gorm v1.24.2
 	vitess.io/vitess v0.15.1
 )
 
 replace github.com/go-ceres/ceres => ../../
 
 require (
+	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -27,6 +29,7 @@ require (
 	github.com/gookit/goutil v0.5.15 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
+	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
@@ -50,6 +53,7 @@ require (
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/term v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
@@ -58,5 +62,6 @@ require (
 	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.20.6 // indirect
 )

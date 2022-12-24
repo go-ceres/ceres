@@ -1,12 +1,12 @@
 package server
 
 import (
-    "github.com/go-ceres/ceres/server/grpc"
+    "github.com/go-ceres/ceres/pkg/transport/grpc"
     {{.Imports}}
 )
 
 func NewGRPCServer({{.serverParamsStr}}) *grpc.Server {
-    srv := grpc.ScanConfig().Build()
+    srv := grpc.ScanServerConfig().Build()
     {{.registerListStr}}
     return srv
 }

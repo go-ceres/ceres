@@ -33,11 +33,11 @@ var wireTemplate string
 func (g *Generator) genWire(ctx DirContext, proto model.Proto) error {
 	// 生成服务
 	dir := ctx.GetBootstrap()
-	controllerImport := fmt.Sprintf(`"%s"`, ctx.GetController().Package)
+	actionImport := fmt.Sprintf(`"%s"`, ctx.GetAction().Package)
 	serverImport := fmt.Sprintf(`"%s"`, ctx.GetServer().Package)
 	domainImport := fmt.Sprintf(`"%s"`, ctx.GetDomain().Package)
 	infrastructureImport := fmt.Sprintf(`"%s"`, ctx.GetInfrastructure().Package)
-	imports := []string{controllerImport, serverImport, domainImport, infrastructureImport}
+	imports := []string{actionImport, serverImport, domainImport, infrastructureImport}
 	wireFilename, err := formatx.FileNamingFormat(g.style.Name, "wire")
 	if err != nil {
 		return err

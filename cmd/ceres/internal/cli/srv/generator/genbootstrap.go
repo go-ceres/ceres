@@ -17,7 +17,6 @@ package generator
 
 import (
 	_ "embed"
-	"fmt"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/config"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/formatx"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/pathx"
@@ -37,12 +36,6 @@ func (g *Generator) genBootstrap(ctx DirContext, conf *config.Config) error {
 	if err != nil {
 		return err
 	}
-	if len(conf.HttpServer) > 0 {
-		imports = append(imports, fmt.Sprintf(`"%s"`, "github.com/go-ceres/ceres/server/"+conf.HttpServer))
-	}
-	if conf.Registry != nil {
-		imports = append(imports, fmt.Sprintf(`"%s"`, "github.com/go-ceres/ceres/registry"))
-	}
 	bootstrapFile := filepath.Join(dir.Filename, bootstrapFilename+".go")
 	text, err := pathx.LoadTpl(category, bootstrapTemplateFilename, bootstrapTemplate)
 	if err != nil {
@@ -50,7 +43,7 @@ func (g *Generator) genBootstrap(ctx DirContext, conf *config.Config) error {
 	}
 	return templatex.With("bootstrap").GoFmt(true).Parse(text).SaveTo(map[string]interface{}{
 		"PackageImports": strings.Join(imports, "\n"),
-		"hasRegistry":    conf.Registry != nil,
+		"hasRegistry":    conf.Registry,
 		"HttpServer":     conf.HttpServer,
 	}, bootstrapFile, false)
 }

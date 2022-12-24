@@ -19,7 +19,7 @@ import (
 	"github.com/go-ceres/ceres/cmd/ceres/internal/environment"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/style"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/log"
-	"github.com/go-ceres/ceres/logger"
+	"github.com/go-ceres/ceres/pkg/common/logger"
 	"github.com/go-ceres/cli/v2"
 )
 

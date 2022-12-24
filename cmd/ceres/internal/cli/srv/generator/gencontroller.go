@@ -39,16 +39,10 @@ func (s *{{.service}}Controller) {{.method}} ({{if .notStream}}ctx context.Conte
 //go:embed tpl/controller.go.tpl
 var controllerTemplate string
 
-type LogicDesc struct {
-	LogicName    string
-	UnTitleName  string
-	LogicPackage string
-}
-
 // GenController 生成grpc实现类,业务入口
 func (g *Generator) GenController(ctx DirContext, proto model.Proto, conf *config.Config) error {
 	// 生成服务
-	dir := ctx.GetController()
+	dir := ctx.GetAction()
 	pbImport := fmt.Sprintf(`"%v"`, ctx.GetProto().Package)
 	imports := []string{pbImport}
 
@@ -101,7 +95,7 @@ func (g *Generator) GenController(ctx DirContext, proto model.Proto, conf *confi
 
 // genControllerProvide 生成service的服务提供者
 func (g *Generator) genControllerProvide(ctx DirContext, proto model.Proto) error {
-	dir := ctx.GetController()
+	dir := ctx.GetAction()
 	provideFilename, err := formatx.FileNamingFormat(g.style.Name, "controller")
 	if err != nil {
 		return err

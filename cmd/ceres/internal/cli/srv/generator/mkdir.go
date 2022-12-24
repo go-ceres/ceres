@@ -44,11 +44,13 @@ const (
 	pkgKey            dirKey = "pkg"            // 组件依赖安装
 	repositoryKey     dirKey = "repository"     // 存储仓
 	serverKey         dirKey = "server"         // 服务注册层（接口层下的子目录）
+	serviceKey        dirKey = "service"        // 服务注册实现
 	domainKey         dirKey = "domain"         // 领域层代码，主要实现逻辑 (属于内部代码下)
 	businessKey       dirKey = "business"       // 业务处理逻辑层
 	entityKey         dirKey = "entity"         // 领域实体
+	valueKey          dirKey = "value"          // 领域实体
 	irepositoryKey    dirKey = "irepository"    // 领域存储接口
-	controllerKey     dirKey = "controller"     // 服务接入层 // 很潜入的一层，用于
+	actionKey         dirKey = "action"         // 服务接入层 // 很潜入的一层，用于
 )
 
 type (
@@ -63,11 +65,12 @@ type (
 		GetProto() Dir          // proto输出目录 --------protoc输出目录
 		GetInternalKey() Dir    // 内部代码层-----防止包调错
 		GetServer() Dir         // 应用层服务启动层-------注册服务
+		GetService() Dir        // 服务注册实现类
 		GetDomain() Dir         // 业务逻辑层-----------对应领域层
 		GetInfrastructure() Dir // 基础设施层 ------基础设置，如数据，调用的额外包，常量
 		GetPkg() Dir            // 包依赖层
 		GetRepository() Dir     // 仓储
-		GetController() Dir     // 服务层
+		GetAction() Dir         // 方法层
 		GetBusiness() Dir       // 业务逻辑层
 		GetIRepository() Dir    // 领域存储层接口
 		GetEntity() Dir         // 领域对象
@@ -90,6 +93,10 @@ type (
 	}
 )
 
+func (d defaultDirContext) GetService() Dir {
+	return d.dirMap[serviceKey]
+}
+
 func (d defaultDirContext) GetAcl() Dir {
 	return d.dirMap[aclKey]
 }
@@ -110,8 +117,8 @@ func (d defaultDirContext) GetEntity() Dir {
 	return d.dirMap[entityKey]
 }
 
-func (d defaultDirContext) GetController() Dir {
-	return d.dirMap[controllerKey]
+func (d defaultDirContext) GetAction() Dir {
+	return d.dirMap[actionKey]
 }
 
 func (d defaultDirContext) GetPkg() Dir {
@@ -186,10 +193,12 @@ func (g *Generator) mkdir(project *ctx.Project, proto model.Proto, conf *config.
 	protoDir := filepath.Join(interfaceDir, "proto")                  // proto生成文件
 	internalDir := filepath.Join(project.WorkDir, "internal")         // 内部包隔离
 	serverDir := filepath.Join(internalDir, "server")                 // 服务注册
-	controllerDir := filepath.Join(internalDir, "controller")         // 控制器，进行DTO-BO对象转换
+	serviceDir := filepath.Join(serverDir, "service")                 // 服务实现
+	actionDir := filepath.Join(internalDir, "action")                 // 控制器，进行DTO-BO对象转换
 	domainDir := filepath.Join(internalDir, "domain")                 // 业务层，主要处理业务罗，实现BO与DO数据转换
 	businessDir := filepath.Join(domainDir, "business")               //业务逻辑处理
-	entityDir := filepath.Join(domainDir, "entity")                   //领域实体
+	entityDir := filepath.Join(domainDir, "model", "entity")          //领域实体
+	valueDir := filepath.Join(domainDir, "model", "value")            //领域实体
 	irepositoryDir := filepath.Join(domainDir, "irepository")         // 领域存储接口
 	infrastructureDir := filepath.Join(internalDir, "infrastructure") // 基础设置层
 	pkgDir := filepath.Join(infrastructureDir, "pkg")                 // 依赖
@@ -212,6 +221,22 @@ func (g *Generator) mkdir(project *ctx.Project, proto model.Proto, conf *config.
 		Base:     filepath.Base(businessDir),
 		GetChildPackage: func(childPath string) (string, error) {
 			return getChildPackage(businessDir, childPath)
+		},
+	}
+	dirMap[valueKey] = Dir{
+		Filename: valueDir,
+		Package:  filepath.ToSlash(filepath.Join(project.Path, strings.TrimPrefix(valueDir, project.Dir))),
+		Base:     filepath.Base(valueDir),
+		GetChildPackage: func(childPath string) (string, error) {
+			return getChildPackage(valueDir, childPath)
+		},
+	}
+	dirMap[serviceKey] = Dir{
+		Filename: serviceDir,
+		Package:  filepath.ToSlash(filepath.Join(project.Path, strings.TrimPrefix(serviceDir, project.Dir))),
+		Base:     filepath.Base(serviceDir),
+		GetChildPackage: func(childPath string) (string, error) {
+			return getChildPackage(serviceDir, childPath)
 		},
 	}
 	dirMap[aclKey] = Dir{
@@ -302,12 +327,12 @@ func (g *Generator) mkdir(project *ctx.Project, proto model.Proto, conf *config.
 			return getChildPackage(serverDir, childPath)
 		},
 	}
-	dirMap[controllerKey] = Dir{
-		Filename: controllerDir,
-		Package:  filepath.ToSlash(filepath.Join(project.Path, strings.TrimPrefix(controllerDir, project.Dir))),
-		Base:     filepath.Base(controllerDir),
+	dirMap[actionKey] = Dir{
+		Filename: actionDir,
+		Package:  filepath.ToSlash(filepath.Join(project.Path, strings.TrimPrefix(actionDir, project.Dir))),
+		Base:     filepath.Base(actionDir),
 		GetChildPackage: func(childPath string) (string, error) {
-			return getChildPackage(controllerDir, childPath)
+			return getChildPackage(actionDir, childPath)
 		},
 	}
 	dirMap[domainKey] = Dir{
@@ -386,7 +411,7 @@ func wrapProtocCmd(conf *config.Config, args []string) []string {
 	res = append(res, "--go_out", conf.ProtocOut)
 	// grpc输出目录
 	res = append(res, "--go-grpc_out", conf.ProtocOut)
-	if len(conf.HttpServer) > 0 {
+	if conf.HttpServer {
 		// http输出目录
 		res = append(res, "--ceres_out", conf.ProtocOut)
 	}

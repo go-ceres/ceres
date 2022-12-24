@@ -1,7 +1,10 @@
-[ceres.application]
+[application]
 	Name = "{{.serviceName}}"
-[ceres.application.server.grpc]
+[application.logger]
+	mode = "std"
+	level = "debug"
+[application.transport.grpc.server]
 	Address="0.0.0.0:5201"{{if .HttpServer}}
-[ceres.application.server.{{.HttpServer}}]
+[application.transport.http.server]
 	Address="0.0.0.0:5200"{{end}}
 {{range .components}}{{.ConfigStr}}{{end}}

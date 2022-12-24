@@ -19,7 +19,7 @@ import (
 	"github.com/go-ceres/ceres/cmd/ceres/internal/depend/golang"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/pathx"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/vars"
-	"github.com/go-ceres/ceres/logger"
+	"github.com/go-ceres/ceres/pkg/common/logger"
 	"path/filepath"
 	"runtime"
 )

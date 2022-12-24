@@ -18,13 +18,13 @@ package nacos
 import (
 	"context"
 	"fmt"
-	"github.com/go-ceres/ceres/registry"
+	"github.com/go-ceres/ceres/pkg/transport"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/model"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
-var _ registry.Watcher = (*watcher)(nil)
+var _ transport.Watcher = (*watcher)(nil)
 
 type watcher struct {
 	serviceName string
@@ -59,7 +59,7 @@ func newWatcher(ctx context.Context, cli naming_client.INamingClient, serviceNam
 	return w, e
 }
 
-func (w watcher) Next() ([]*registry.ServiceInfo, error) {
+func (w watcher) Next() ([]*transport.ServiceInfo, error) {
 	select {
 	case <-w.ctx.Done():
 		return nil, w.ctx.Err()
@@ -73,13 +73,13 @@ func (w watcher) Next() ([]*registry.ServiceInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*registry.ServiceInfo, 0, len(res.Hosts))
+	items := make([]*transport.ServiceInfo, 0, len(res.Hosts))
 	for _, in := range res.Hosts {
 		kind := w.kind
 		if k, ok := in.Metadata["kind"]; ok {
 			kind = k
 		}
-		items = append(items, &registry.ServiceInfo{
+		items = append(items, &transport.ServiceInfo{
 			ID:        in.InstanceId,
 			Name:      res.Name,
 			Version:   in.Metadata["version"],

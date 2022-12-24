@@ -39,7 +39,7 @@ func (g *Generator) genServer(ctx DirContext, proto model.Proto, conf *config.Co
 	if err := g.genGRPCServer(ctx, proto); err != nil {
 		return err
 	}
-	if len(conf.HttpServer) > 0 {
+	if conf.HttpServer {
 		if err := g.genHTTPServer(ctx, proto, conf); err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func (g *Generator) genGRPCServer(ctx DirContext, proto model.Proto) error {
 	// 生成服务
 	dir := ctx.GetServer()
 	pbImport := fmt.Sprintf(`proto "%v"`, ctx.GetProto().Package)
-	serviceImport := fmt.Sprintf(`"%s"`, ctx.GetController().Package)
+	serviceImport := fmt.Sprintf(`"%s"`, ctx.GetService().Package)
 	imports := []string{pbImport, serviceImport}
 	filename, err := formatx.FileNamingFormat(g.style.Name, "grpc")
 	if err != nil {
@@ -63,8 +63,8 @@ func (g *Generator) genGRPCServer(ctx DirContext, proto model.Proto) error {
 	var registerServerList = make([]string, 0)
 	for _, service := range proto.Service {
 		paramName := stringx.NewString(stringx.NewString(service.Name).ToCamel()).UnTitle()
-		paramType := stringx.NewString(service.Name).ToCamel() + "Controller"
-		serverParamsList = append(serverParamsList, fmt.Sprintf("%s *%s.%s", paramName, ctx.GetController().Base, paramType))
+		paramType := stringx.NewString(service.Name).ToCamel() + "Service"
+		serverParamsList = append(serverParamsList, fmt.Sprintf("%s *%s.%s", paramName, ctx.GetService().Base, paramType))
 		registerServerList = append(
 			registerServerList,
 			fmt.Sprintf("%s.Register%s(srv,%s)", "proto", stringx.NewString(service.Name).ToCamel()+"Server", paramName),
@@ -79,7 +79,7 @@ func (g *Generator) genGRPCServer(ctx DirContext, proto model.Proto) error {
 		"Imports":         strings.Join(imports, "\n"),
 		"serverParamsStr": strings.Join(serverParamsList, ","),
 		"registerListStr": strings.Join(registerServerList, "\n"),
-	}, serverFile, true)
+	}, serverFile, false)
 }
 
 // genHTTPServer 生成HTTP服务
@@ -87,9 +87,8 @@ func (g *Generator) genHTTPServer(ctx DirContext, proto model.Proto, conf *confi
 	// 生成服务
 	dir := ctx.GetServer()
 	pbImport := fmt.Sprintf(`proto "%v"`, ctx.GetProto().Package)
-	serviceImport := fmt.Sprintf(`"%s"`, ctx.GetController().Package)
-	serverImport := fmt.Sprintf(`"%s"`, "github.com/go-ceres/ceres/server/"+conf.HttpServer)
-	imports := []string{pbImport, serviceImport, serverImport}
+	serviceImport := fmt.Sprintf(`"%s"`, ctx.GetService().Package)
+	imports := []string{pbImport, serviceImport}
 	filename, err := formatx.FileNamingFormat(g.style.Name, "http")
 	if err != nil {
 		return err
@@ -99,8 +98,8 @@ func (g *Generator) genHTTPServer(ctx DirContext, proto model.Proto, conf *confi
 	var registerServerList = make([]string, 0)
 	for _, service := range proto.Service {
 		paramName := stringx.NewString(stringx.NewString(service.Name).ToCamel()).UnTitle()
-		paramType := stringx.NewString(service.Name).ToCamel() + "Controller"
-		serverParamsList = append(serverParamsList, fmt.Sprintf("%s *%s.%s", paramName, ctx.GetController().Base, paramType))
+		paramType := stringx.NewString(service.Name).ToCamel() + "Service"
+		serverParamsList = append(serverParamsList, fmt.Sprintf("%s *%s.%s", paramName, ctx.GetService().Base, paramType))
 		registerServerList = append(
 			registerServerList,
 			fmt.Sprintf("%s.Register%s(srv,%s)", "proto", stringx.NewString(service.Name).ToCamel()+"HTTPServer", paramName),
@@ -115,7 +114,7 @@ func (g *Generator) genHTTPServer(ctx DirContext, proto model.Proto, conf *confi
 		"ServerType":      conf.HttpServer,
 		"serverParamsStr": strings.Join(serverParamsList, ","),
 		"registerListStr": strings.Join(registerServerList, "\n"),
-	}, serverFile, true)
+	}, serverFile, false)
 }
 
 // genServerProvide 生成服务提供者
@@ -127,16 +126,19 @@ func (g *Generator) genServerProvide(ctx DirContext, proto model.Proto, conf *co
 		return err
 	}
 	serverFile := filepath.Join(dir.Filename, filename+".go")
+	serviceImport := fmt.Sprintf(`"%s"`, ctx.GetService().Package)
+	imports := []string{serviceImport}
 	text, err := pathx.LoadTpl(category, provideTemplateFilename, provideTemplate)
 	if err != nil {
 		return err
 	}
-	ProvideSetStr := "NewGRPCServer"
-	if len(conf.HttpServer) > 0 {
+	ProvideSetStr := "service.ProvideSet,NewGRPCServer"
+	if conf.HttpServer {
 		ProvideSetStr = ProvideSetStr + ",NewHTTPServer"
 	}
 	return templatex.With("server-provide").GoFmt(true).Parse(text).SaveTo(map[string]interface{}{
 		"PackageName":   "server",
+		"ImportsStr":    strings.Join(imports, "\n"),
 		"ProvideSetStr": ProvideSetStr,
 	}, serverFile, true)
 }

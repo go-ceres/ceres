@@ -17,7 +17,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-ceres/ceres/errors"
+	"github.com/go-ceres/ceres/pkg/common/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	errorsPackage = protogen.GoImportPath("github.com/go-ceres/ceres/errors")
+	errorsPackage = protogen.GoImportPath("github.com/go-ceres/ceres/pkg/common/errors")
 	fmtPackage    = protogen.GoImportPath("fmt")
 )
 

@@ -17,10 +17,9 @@ package main
 
 import (
 	"fmt"
-	"google.golang.org/genproto/googleapis/api/annotations"
+	"github.com/go-ceres/ceres/pkg/proto/api"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"net/http"
 	"os"
@@ -30,21 +29,18 @@ import (
 
 const (
 	contextPackage = protogen.GoImportPath("context")
-	serverPackage  = protogen.GoImportPath("github.com/go-ceres/ceres/transport/http")
-	clientPackage  = protogen.GoImportPath("github.com/go-ceres/ceres/client/http")
-	bindingPackage = protogen.GoImportPath("github.com/go-ceres/ceres/transport/http/binding")
+	httpPackage    = protogen.GoImportPath("github.com/go-ceres/ceres/pkg/transport/http")
 )
 
 var methodSets = make(map[string]int)
 
 // Generator 定义生成器
 type Generator struct {
-	gen           *protogen.Plugin
-	file          *protogen.File
-	writer        *protogen.GeneratedFile
-	clientPackage string
-	serverPackage string
-	omitempty     bool // 是否忽略掉没有配置路由的方法
+	gen         *protogen.Plugin
+	file        *protogen.File
+	writer      *protogen.GeneratedFile
+	httpPackage string
+	omitempty   bool // 是否忽略掉没有配置路由的方法
 }
 
 // Run 开始生成
@@ -69,21 +65,13 @@ func (g *Generator) genFileContent() {
 	g.P("// This is a compile-time assertion to ensure that this generated file")
 	g.P("// is compatible with the ceres package it is being compiled against.")
 	g.P("var _ = new(", contextPackage.Ident("Context"), ")")
-	g.P("var _ = ", bindingPackage.Ident("EncodeURL"))
-	g.P("const _ = ", clientPackage.Ident("SupportPackageIsVersion1"))
-	g.P("const _ = ", serverPackage.Ident("SupportPackageIsVersion1"))
+	g.P("const _ = ", httpPackage.Ident("SupportPackageIsVersion1"))
 	g.P()
 	str := g.writer.QualifiedGoIdent(protogen.GoIdent{
 		GoName:       "ceres-go",
-		GoImportPath: clientPackage,
+		GoImportPath: httpPackage,
 	})
-	g.clientPackage = strings.TrimSuffix(str, ".ceres-go")
-	g.printf("%s----------------%s", str, strings.TrimSuffix(str, ".ceres-go"))
-	str = g.writer.QualifiedGoIdent(protogen.GoIdent{
-		GoName:       "ceres-go",
-		GoImportPath: serverPackage,
-	})
-	g.serverPackage = strings.TrimSuffix(str, ".ceres-go")
+	g.httpPackage = strings.TrimSuffix(str, ".ceres-go")
 	g.printf("%s----------------%s", str, strings.TrimSuffix(str, ".ceres-go"))
 	for _, service := range g.file.Services {
 		g.genService(service)
@@ -98,8 +86,7 @@ func (g *Generator) genService(service *protogen.Service) {
 	}
 	// HTTP Server.
 	sd := &serviceDesc{
-		ClientPath:  g.clientPackage,
-		ServerPath:  g.serverPackage,
+		HttpPath:    g.httpPackage,
 		ServiceType: service.GoName,
 		ServiceName: string(service.Desc.FullName()),
 		Metadata:    g.file.Desc.Path(),
@@ -108,111 +95,95 @@ func (g *Generator) genService(service *protogen.Service) {
 		if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 			continue
 		}
-		rule, ok := proto.GetExtension(method.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
-		if rule != nil && ok {
-			for _, bind := range rule.AdditionalBindings {
-				sd.Methods = append(sd.Methods, g.buildHTTPRule(method, bind))
-			}
-			sd.Methods = append(sd.Methods, g.buildHTTPRule(method, rule))
+		g.printf("这是获取到的path:%s", proto.GetExtension(method.Desc.Options(), api.E_Get))
+		if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Get).(string); ok && path != "" {
+			g.printf("获取到了get方法: path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodGet, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Post).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodPost, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Put).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodPut, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Delete).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodDelete, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Options).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodOptions, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Patch).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodPatch, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Head).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodHead, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Connect).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodConnect, path))
+		} else if path, ok := proto.GetExtension(method.Desc.Options(), api.E_Trace).(string); ok && path != "" {
+			g.printf("获取到了post方法,path是%s", path)
+			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodTrace, path))
 		} else if !g.omitempty {
 			path := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
 			sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodPost, path))
 		}
+
+		//rule, ok := proto.GetExtension(method.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
+		//if rule != nil && ok {
+		//	for _, bind := range rule.AdditionalBindings {
+		//		sd.Methods = append(sd.Methods, g.buildHTTPRule(method, bind))
+		//	}
+		//	sd.Methods = append(sd.Methods, g.buildHTTPRule(method, rule))
+		//} else if !g.omitempty {
+		//	path := fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
+		//	sd.Methods = append(sd.Methods, g.buildMethodDesc(method, http.MethodPost, path))
+		//}
 	}
 	if len(sd.Methods) != 0 {
 		g.P(sd.execute())
 	}
 }
 
-func (g *Generator) buildHTTPRule(m *protogen.Method, rule *annotations.HttpRule) *methodDesc {
-	var (
-		path         string
-		method       string
-		body         string
-		responseBody string
-	)
-
-	switch pattern := rule.Pattern.(type) {
-	case *annotations.HttpRule_Get:
-		path = pattern.Get
-		method = http.MethodGet
-	case *annotations.HttpRule_Put:
-		path = pattern.Put
-		method = http.MethodPut
-	case *annotations.HttpRule_Post:
-		path = pattern.Post
-		method = http.MethodPost
-	case *annotations.HttpRule_Delete:
-		path = pattern.Delete
-		method = http.MethodDelete
-	case *annotations.HttpRule_Patch:
-		path = pattern.Patch
-		method = http.MethodPatch
-	case *annotations.HttpRule_Custom:
-		path = pattern.Custom.Path
-		method = pattern.Custom.Kind
-	}
-	body = rule.Body
-	responseBody = rule.ResponseBody
-	md := g.buildMethodDesc(m, method, path)
-	if method == http.MethodGet || method == http.MethodDelete {
-		if body != "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
-		}
-	} else {
-		if body == "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s does not declare a body.\n", method, path)
-		}
-	}
-	if body == "*" {
-		md.HasBody = true
-		md.Body = ""
-	} else if body != "" {
-		md.HasBody = true
-		md.Body = "." + camelCaseVars(body)
-	} else {
-		md.HasBody = false
-	}
-	if responseBody == "*" {
-		md.ResponseBody = ""
-	} else if responseBody != "" {
-		md.ResponseBody = "." + camelCaseVars(responseBody)
-	}
-	return md
-}
+//func (g *Generator) buildHTTPRule(m *protogen.Method, rule *annotations.HttpRule) *methodDesc {
+//	var (
+//		path         string
+//		method       string
+//		responseBody string
+//	)
+//
+//	switch pattern := rule.Pattern.(type) {
+//	case *annotations.HttpRule_Get:
+//		path = pattern.Get
+//		method = http.MethodGet
+//	case *annotations.HttpRule_Put:
+//		path = pattern.Put
+//		method = http.MethodPut
+//	case *annotations.HttpRule_Post:
+//		path = pattern.Post
+//		method = http.MethodPost
+//	case *annotations.HttpRule_Delete:
+//		path = pattern.Delete
+//		method = http.MethodDelete
+//	case *annotations.HttpRule_Patch:
+//		path = pattern.Patch
+//		method = http.MethodPatch
+//	case *annotations.HttpRule_Custom:
+//		path = pattern.Custom.Path
+//		method = pattern.Custom.Kind
+//	}
+//	responseBody = rule.ResponseBody
+//	md := g.buildMethodDesc(m, method, path)
+//	if responseBody == "*" {
+//		md.ResponseBody = ""
+//	} else if responseBody != "" {
+//		md.ResponseBody = "." + camelCaseVars(responseBody)
+//	}
+//	return md
+//}
 
 func (g *Generator) buildMethodDesc(m *protogen.Method, method, path string) *methodDesc {
 	defer func() { methodSets[m.GoName]++ }()
 
-	vars := g.buildPathVars(path)
-
-	for v, s := range vars {
-		fields := m.Input.Desc.Fields()
-
-		if s != nil {
-			path = replacePath(v, *s, path)
-		}
-		for _, field := range strings.Split(v, ".") {
-			if strings.TrimSpace(field) == "" {
-				continue
-			}
-			if strings.Contains(field, ":") {
-				field = strings.Split(field, ":")[0]
-			}
-			fd := fields.ByName(protoreflect.Name(field))
-			if fd == nil {
-				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
-				os.Exit(2)
-			}
-			if fd.IsMap() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a map.\n", v)
-			} else if fd.IsList() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a list.\n", v)
-			} else if fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind {
-				fields = fd.Message().Fields()
-			}
-		}
-	}
 	return &methodDesc{
 		Name:         m.GoName,
 		OriginalName: string(m.Desc.Name()),
@@ -221,26 +192,7 @@ func (g *Generator) buildMethodDesc(m *protogen.Method, method, path string) *me
 		Reply:        g.writer.QualifiedGoIdent(m.Output.GoIdent),
 		Path:         path,
 		Method:       method,
-		HasVars:      len(vars) > 0,
 	}
-}
-
-func (g *Generator) buildPathVars(path string) (res map[string]*string) {
-	if strings.HasSuffix(path, "/") {
-		fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: Path %s should not end with \"/\" \n", path)
-	}
-	pattern := regexp.MustCompile(`(?i){([a-z.0-9_\s]*)=?([^{}]*)}`)
-	matches := pattern.FindAllStringSubmatch(path, -1)
-	res = make(map[string]*string, len(matches))
-	for _, m := range matches {
-		name := strings.TrimSpace(m[1])
-		if len(name) > 1 && len(m[2]) > 0 {
-			res[name] = &m[2]
-		} else {
-			res[name] = nil
-		}
-	}
-	return
 }
 
 // printf 打印日志
@@ -273,8 +225,23 @@ func hasHTTPRule(file *protogen.File) bool {
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 				continue
 			}
-			rule, ok := proto.GetExtension(method.Desc.Options(), annotations.E_Http).(*annotations.HttpRule)
-			if rule != nil && ok {
+			if proto.HasExtension(method.Desc.Options(), api.E_Get) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Post) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Put) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Patch) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Delete) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Options) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Head) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Connect) {
+				return true
+			} else if proto.HasExtension(method.Desc.Options(), api.E_Trace) {
 				return true
 			}
 		}

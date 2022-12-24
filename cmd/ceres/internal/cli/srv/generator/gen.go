@@ -17,10 +17,12 @@ package generator
 
 import (
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/config"
+	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/inject/tags"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/parser"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/ctx"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/util/pathx"
 	"path/filepath"
+	"strings"
 )
 
 func (g *Generator) Generate(conf *config.Config) error {
@@ -66,74 +68,88 @@ func (g *Generator) Generate(conf *config.Config) error {
 		return err
 	}
 
-	// 8.生成配置文件
+	// 8.注入tag标签
+	pbFileName := filepath.Join(dirCtx.GetProto().Filename, strings.TrimSuffix(proto.Name, ".proto")+".pb.go")
+	messages, err := tags.ParseFile(pbFileName, nil)
+	if err != nil {
+		return err
+	}
+	err = tags.WireFile(pbFileName, messages, proto)
+	if err != nil {
+		return err
+	}
+
+	// 9.生成配置文件
 	if err := g.GenConfig(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 9.生成数据存储接口
+	// 10.生成数据存储接口
 	if err := g.genIRepository(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 10.生成实体对象
+	// 11.生成实体对象
 	if err := g.genEntity(dirCtx, proto); err != nil {
 		return err
 	}
-	// 11.生成业务business业务代码
+	// 12.生成业务business业务代码
 	if err := g.genBusiness(dirCtx, proto); err != nil {
 		return err
 	}
-	// 12.生成基础设施层存储层
+	// 13.生成基础设施层存储层
 	if err := g.genRepository(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 13.生成domain的provide
+	// 14.生成domain的provide
 	if err := g.genDomainProvide(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 14.生成基础设施层的包依赖初始化
+	// 15.生成基础设施层的包依赖初始化
 	if err := g.genPkg(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 15.生成基础设施的provide
+	// 16.生成基础设施的provide
 	if err := g.genInfrastructure(dirCtx, conf); err != nil {
 		return err
 	}
-
-	// 16.生成服务
-	if err := g.GenController(dirCtx, proto, conf); err != nil {
+	// 17.生成action
+	if err := g.genAction(dirCtx, proto, conf); err != nil {
+		return err
+	}
+	// 18.生成服务
+	if err := g.GenService(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 17.生成服务注册
+	// 19.生成服务注册
 	if err := g.genServer(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 18.生成acl，接口防腐层依赖注入
+	// 20.生成acl，接口防腐层依赖注入
 	if err := g.genAcl(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 19.生成依赖注入文件
+	// 21.生成依赖注入文件
 	if err := g.genWire(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 20.生成bootstrap文件
+	// 22.生成bootstrap文件
 	if err = g.genBootstrap(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 21.生成makefile文件
+	// 23.生成makefile文件
 	if err := g.genMakefile(dirCtx, proto); err != nil {
 		return err
 	}
-	// 22.生成dockerfile文件
+	// 24.生成dockerfile文件
 	if err := g.genDockerfile(dirCtx, proto); err != nil {
 		return err
 	}

@@ -17,17 +17,17 @@ package nacos
 
 import (
 	"context"
-	"github.com/go-ceres/ceres/logger"
-	"github.com/go-ceres/ceres/registry"
+	"github.com/go-ceres/ceres/pkg/common/logger"
+	"github.com/go-ceres/ceres/pkg/transport"
 	"testing"
 )
 
 func TestTestRegistry(t *testing.T) {
-	conf := DefaultConfig()
+	conf := DefaultOptions()
 	conf.NamespaceId = "0799197e-ba01-4e9e-b6e5-815cbedef2d7"
 	conf.Address = append(conf.Address, "http://123.57.16.239:8848/nacos")
 	register := conf.Build()
-	serverInfo := &registry.ServiceInfo{
+	serverInfo := &transport.ServiceInfo{
 		ID:        "123456789",
 		Name:      "test",
 		Version:   "v1.0.0",

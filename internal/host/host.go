@@ -45,7 +45,7 @@ func Port(lis net.Listener) (int, bool) {
 	return 0, false
 }
 
-// Extract 返回内网地址和端口
+// Extract 返回地址
 func Extract(hostPort string, lis net.Listener) (string, error) {
 	addr, port, err := net.SplitHostPort(hostPort)
 	if err != nil && lis == nil {

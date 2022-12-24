@@ -1,0 +1,33 @@
+syntax = "proto3";
+package api;
+
+option go_package = "github.com/go-ceres/ceres/pkg/proto/api";
+option java_multiple_files = true;
+option java_package = "com.github.ceres.proto.api";
+option objc_class_prefix = "CeresApi";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  optional string header =65000;
+  optional string path = 65001;
+  optional string query = 65002;
+  optional string form = 65003;
+  optional string json = 65004;
+}
+
+extend google.protobuf.MethodOptions{
+  string get = 66000;
+  string post = 66001;
+  string put = 66002;
+  string delete = 66003;
+  string patch = 66004;
+  string options = 66005;
+  string head = 66006;
+  string connect = 66007;
+  string trace = 66008;
+}
+
+enum Auth{
+  token = 0;
+}
