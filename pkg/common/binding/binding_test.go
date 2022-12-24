@@ -44,6 +44,6 @@ func TestMarshal(t *testing.T) {
 			Ceshi string `json:"ceshi"`
 		}{Ceshi: "aaa"},
 	}
-	bind.marshal("POST", "/user/:id", v)
+	bind.marshal("/user/:id", v)
 	//println(err)
 }

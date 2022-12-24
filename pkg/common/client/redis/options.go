@@ -224,6 +224,6 @@ func (o *Options) WithOptions(opts ...Option) *Options {
 }
 
 // Build 构建redis
-func (c *Options) Build() *Client {
-	return New(c)
+func (o *Options) Build() *Client {
+	return NewWithOptions(o)
 }

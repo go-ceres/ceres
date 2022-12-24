@@ -27,13 +27,13 @@ type Option func(o *Options)
 
 // Options 配置信息
 type Options struct {
-	Address       []string       `json:"address"`       // 服务器地址
-	Weight        float64        `json:"weight"`        // 初始化权重
-	Cluster       string         `json:"cluster"`       // 集群
-	Group         string         `json:"group"`         // 分组
-	Kind          string         `json:"kind"`          // 默认协议
-	ContentPath   string         `json:"contentPath"`   // nacos server contextpath
-	ClientOptions *ClientOptions `json:"clientOptions"` // nacos客户端配置
+	Address        []string               `json:"address"`     // 服务器地址
+	Weight         float64                `json:"weight"`      // 初始化权重
+	Cluster        string                 `json:"cluster"`     // 集群
+	Group          string                 `json:"group"`       // 分组
+	Kind           string                 `json:"kind"`        // 默认协议
+	ContentPath    string                 `json:"contentPath"` // nacos server contextpath
+	*ClientOptions `json:"clientOptions"` // nacos客户端配置
 }
 
 // ClientOptions 客户端配置

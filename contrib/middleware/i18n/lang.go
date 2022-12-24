@@ -21,7 +21,7 @@ import (
 )
 
 func defaultGetLangHandler(ctx context.Context, defaultLang string) string {
-	tr, ok := transport.FromServerContext(ctx)
+	tr, ok := transport.MetadataFromServerContext(ctx)
 	if !ok {
 		return defaultLang
 	}
