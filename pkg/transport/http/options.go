@@ -307,9 +307,15 @@ func WithServerRedirectFixedPath(RedirectFixedPath bool) ServerOption {
 	}
 }
 
-func WithServerMiddleware(middleware matcher.Matcher) ServerOption {
+func WithServerMiddleware(middlewares ...transport.Middleware) ServerOption {
 	return func(o *ServerOptions) {
-		o.middleware = middleware
+		o.middleware.Use(middlewares...)
+	}
+}
+
+func AddServerMiddleware(selector string, middlewares ...transport.Middleware) ServerOption {
+	return func(o *ServerOptions) {
+		o.middleware.Add(selector, middlewares...)
 	}
 }
 
