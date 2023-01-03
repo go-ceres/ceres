@@ -25,9 +25,6 @@ import (
 	"time"
 )
 
-// ModName 模块名称
-const ModName = "transport.grpc"
-
 // ================= 服务端参数 ===================
 
 // ServerOptions 参数信息
@@ -58,7 +55,7 @@ func DefaultServerOptions() *ServerOptions {
 		SlowQueryThreshold: 3 * time.Second,
 		Debug:              false,
 		middleware:         matcher.New(),
-		logger:             logger.With(logger.FieldMod(ModName)),
+		logger:             logger.With(logger.FieldMod("transport.grpc.server")),
 	}
 }
 
@@ -227,8 +224,7 @@ type ClientOptions struct {
 	Timeout      time.Duration                 `json:"timeout"`     // 超时
 	DialTimeout  time.Duration                 `json:"dialTimeout"` // 调用超时
 	OnDialError  string                        `json:"OnDialError"` // 构建错误处理 panic | error
-	Balancer     string                        // 负载均衡器名称
-	Selector     string                        `json:"selector"` // 选择器名称
+	Balancer     string                        `json:"balancer"`    // 负载均衡器名称
 	discovery    transport.Discover            // 服务发现
 	middleware   []transport.Middleware        // 中间件
 	interceptors []grpc.UnaryClientInterceptor // 拦截器
@@ -243,11 +239,10 @@ func DefaultClientOptions() *ClientOptions {
 		Block:       true,
 		Timeout:     3 * time.Second,
 		DialTimeout: 3 * time.Second,
-		Selector:    "p2c",
 		Balancer:    balanceName,
 		Insecure:    true,
 		Debug:       false,
-		logger:      logger.With(logger.FieldMod(ModName)),
+		logger:      logger.With(logger.FieldMod("transport.grpc.client")),
 	}
 }
 
@@ -320,12 +315,6 @@ func WithClientOnDialError(OnDialError string) ClientOption {
 func WithClientBalancer(Balancer string) ClientOption {
 	return func(o *ClientOptions) {
 		o.Balancer = Balancer
-	}
-}
-
-func WithClientSelector(Selector string) ClientOption {
-	return func(o *ClientOptions) {
-		o.Selector = Selector
 	}
 }
 

@@ -114,7 +114,7 @@ func (s *Server) Start(ctx context.Context) error {
 		return err
 	}
 	s.baseContext = ctx
-	s.opts.logger.Infof("[gRPC] server listening on: %s", s.listener.Addr().String())
+	s.opts.logger.Infof("[GRPC] server listening on: %s", s.listener.Addr().String())
 	if s.opts.Health {
 		s.health.Resume()
 	}
@@ -123,7 +123,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 // Stop 关闭
 func (s *Server) Stop(ctx context.Context) error {
-	s.opts.logger.Info("[gRPC] server stopping")
+	s.opts.logger.Info("[GRPC] server stopping")
 	s.GracefulStop()
 	return nil
 }

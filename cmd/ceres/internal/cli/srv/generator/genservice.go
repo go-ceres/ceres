@@ -50,10 +50,9 @@ func (g *Generator) GenService(ctx DirContext, proto model.Proto, conf *config.C
 	// 生成服务
 	dir := ctx.GetService()
 	pbImport := fmt.Sprintf(`"%v"`, ctx.GetProto().Package)
-	imports := []string{pbImport}
-
 	for _, service := range proto.Service {
 		serviceFilename, err := formatx.FileNamingFormat(g.style.Name, service.Name+"_service")
+		imports := []string{pbImport}
 		if err != nil {
 			return err
 		}
@@ -63,7 +62,7 @@ func (g *Generator) GenService(ctx DirContext, proto model.Proto, conf *config.C
 			if err != nil {
 				return err
 			}
-			actionImport := fmt.Sprintf(`"%s"`, actionChildPkg)
+			actionImport := fmt.Sprintf(`%s "%s"`, service.Name+"Actions", actionChildPkg)
 			imports = append(imports, actionImport)
 
 		} else {
@@ -148,11 +147,7 @@ func (g *Generator) genServiceFunctions(ctx DirContext, goPackage string, servic
 			parser.CamelCase(rpc.Name), "Server")
 		actionPackage := ""
 		if multi {
-			actionChildPackage, err := ctx.GetAction().GetChildPackage(service.Name)
-			if err != nil {
-				return nil, nil, err
-			}
-			actionPackage = filepath.Base(actionChildPackage)
+			actionPackage = service.Name + "Actions"
 		} else {
 			actionPackage = "action"
 		}

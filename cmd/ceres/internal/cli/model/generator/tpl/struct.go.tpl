@@ -10,12 +10,12 @@ type (
 
 	{{.camelName}}List []*{{.camelName}}
 
-	QueryParam struct {
+	{{.camelName}}ListQueryParam struct {
         gorm.PaginationParam
         gorm.QueryOptions
     }
 
-	{{.camelName}}QueryResult struct {
+	{{.camelName}}ListQueryResult struct {
         PageResult *gorm.PaginationResult
         List                  {{.camelName}}List
     }

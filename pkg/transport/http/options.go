@@ -129,7 +129,7 @@ func DefaultServerOptions() *ServerOptions {
 		XmlCodec:              codec.LoadCodec("xml"),
 		ErrorHandler:          DefaultErrorHandler,
 		EncodeResponseFunc:    DefaultResponseEncode,
-		logger:                logger.With(logger.FieldMod(ModName)),
+		logger:                logger.With(logger.FieldMod("transport.http.server")),
 	}
 }
 
@@ -374,7 +374,7 @@ func DefaultClientOptions() *ClientOptions {
 		decodeResponse: defaultResponseDecoder,
 		errorDecoder:   defaultErrorDeCoder,
 		ctx:            context.Background(),
-		logger:         logger.With(logger.FieldMod(ModName)),
+		logger:         logger.With(logger.FieldMod("transport.http.client")),
 	}
 }
 

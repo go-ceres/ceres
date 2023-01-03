@@ -76,6 +76,7 @@ func (r *directResolver) ResolveNow(options resolver.ResolveNowOptions) {
 type discoveryResolverBuilder struct {
 	discoverer       transport.Discover
 	timeout          time.Duration
+	logger           *logger.Logger
 	insecure         bool
 	debugLogDisabled bool
 }
@@ -112,6 +113,7 @@ func (d *discoveryResolverBuilder) Build(target resolver.Target, cc resolver.Cli
 		ctx:              ctx,
 		cancel:           cancel,
 		insecure:         d.insecure,
+		logger:           d.logger,
 		debugLogDisabled: d.debugLogDisabled,
 	}
 	go r.watch()
@@ -179,7 +181,7 @@ func (r *discoveryResolver) update(ins []*transport.ServiceInfo) {
 		addrs = append(addrs, addr)
 	}
 	if len(addrs) == 0 {
-		r.logger.Warnf("[resolver] Zero endpoint found,refused to write, instances: %v", ins)
+		r.logger.Warnf("[resolver] not found endpoint list,refused to write, instances: %v", ins)
 		return
 	}
 	err := r.cc.UpdateState(resolver.State{Addresses: addrs})

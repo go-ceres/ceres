@@ -69,8 +69,9 @@ func NewClientWithOptions(options *ClientOptions) (*grpc.ClientConn, error) {
 		b := &discoveryResolverBuilder{
 			discoverer:       options.discovery,
 			timeout:          time.Second * 10,
+			logger:           options.logger,
 			insecure:         options.Insecure,
-			debugLogDisabled: false,
+			debugLogDisabled: options.Debug,
 		}
 		dialOptions = append(dialOptions, grpc.WithResolvers(b))
 	}
@@ -82,11 +83,8 @@ func NewClientWithOptions(options *ClientOptions) (*grpc.ClientConn, error) {
 	}
 	cc, err := grpc.DialContext(ctx, options.Endpoint, dialOptions...)
 	if err != nil {
-		if options.OnDialError == "panic" {
-			options.logger.Panic("dial grpc server panic err", logger.FieldError(err))
-		} else {
-			options.logger.Error("dial grpc server panic err", logger.FieldError(err))
-		}
+		options.logger.Error("dial grpc server err", logger.FieldError(err))
+		return nil, err
 	}
 	options.logger.Infof("grpc client started")
 	return cc, nil

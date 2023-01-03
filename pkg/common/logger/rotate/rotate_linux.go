@@ -61,8 +61,8 @@ const (
 	backupTimeFormat = "2006-01-02T15-04-05.000"
 )
 
-// 创建一个日志切割实例
-func newRotate(config *Config) *Rotate {
+// NewRotate 创建一个日志切割实例
+func NewRotate(config *Config) *Rotate {
 	rotate := Rotate{
 		config: config,
 	}

@@ -27,7 +27,7 @@ import (
 )
 
 // Version ceres的版本
-const Version = "v0.0.4-rc4"
+const Version = "v0.0.4-rc5"
 
 // 变化量
 var (

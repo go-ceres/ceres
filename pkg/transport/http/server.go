@@ -35,7 +35,6 @@ import (
 
 const (
 	KindHttp                 transport.Kind = "grpc"
-	ModName                                 = "server.http"
 	SupportPackageIsVersion1                = true
 )
 

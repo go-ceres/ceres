@@ -1,7 +1,7 @@
 module github.com/go-ceres/ceres/contrib/registry/nacos
 
 require (
-	github.com/go-ceres/ceres v0.0.4-rc4
+	github.com/go-ceres/ceres v0.0.4-rc5
 	github.com/nacos-group/nacos-sdk-go v1.0.9
 )
 
@@ -11,6 +11,7 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/json-iterator/go v1.1.6 // indirect
@@ -27,6 +28,8 @@ require (
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

@@ -1,10 +1,6 @@
-module github.com/go-ceres/ceres/contrib/middleware/i18n
+module github.com/go-ceres/ceres/contrib/middleware/token
 
-require (
-	github.com/go-ceres/ceres v0.0.4-rc5
-	github.com/nicksnyder/go-i18n/v2 v2.2.1
-	golang.org/x/text v0.4.0
-)
+require github.com/go-ceres/ceres v0.0.4-rc5
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -17,4 +13,4 @@ require (
 
 replace github.com/go-ceres/ceres => ../../../
 
-go 1.18
+go 1.19

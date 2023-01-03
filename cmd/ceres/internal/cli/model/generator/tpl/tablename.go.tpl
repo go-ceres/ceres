@@ -1,3 +1,3 @@
-func ({{.camelName}}) TableName() string {
+func (*{{.camelName}}) TableName() string {
 	return "{{.prefix}}{{.name}}"
 }

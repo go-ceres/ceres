@@ -24,8 +24,7 @@ import (
 
 func TestTestRegistry(t *testing.T) {
 	conf := DefaultOptions()
-	conf.NamespaceId = "0799197e-ba01-4e9e-b6e5-815cbedef2d7"
-	conf.Address = append(conf.Address, "http://123.57.16.239:8848/nacos")
+	conf.Address = append(conf.Address, "http://192.168.3.30:8848/nacos")
 	register := conf.Build()
 	serverInfo := &transport.ServiceInfo{
 		ID:        "123456789",
@@ -38,6 +37,16 @@ func TestTestRegistry(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	watch, err := register.Watch(context.Background(), "user.grpc")
+	if err != nil {
+		t.Error(err)
+	}
+	next, err := watch.Next()
+	if err != nil {
+		t.Error(err)
+	}
+	print(next)
+
 	service, err := register.GetService(context.Background(), "test.http")
 	if err != nil {
 		t.Error(err)

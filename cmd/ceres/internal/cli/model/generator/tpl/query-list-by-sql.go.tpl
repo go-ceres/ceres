@@ -1,4 +1,4 @@
-func (m *default{{.camelName}}Repository) QueryListBySql(ctx context.Context, params *QueryParam, sql string,args ...interface{} ) (*{{.camelName}}QueryResult,error) {
+func (m *default{{.camelName}}Repository) QueryListBySql(ctx context.Context, params *{{.camelName}}ListQueryParam, sql string,args ...interface{} ) (*{{.camelName}}ListQueryResult,error) {
 	db := Get{{.camelName}}Db(ctx, m.db)
 	if len(sql) > 0 {
         db.Where(sql, args)
@@ -14,7 +14,7 @@ func (m *default{{.camelName}}Repository) QueryListBySql(ctx context.Context, pa
 	if err != nil {
         return nil, err
     }
-    qr := &{{.camelName}}QueryResult{
+    qr := &{{.camelName}}ListQueryResult{
         List:       po,
         PageResult: pr,
     }
