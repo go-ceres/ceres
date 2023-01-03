@@ -3,8 +3,7 @@ module github.com/go-ceres/ceres/cmd/protoc-gen-ceres
 go 1.18
 
 require (
-	github.com/go-ceres/ceres v0.0.4-rc5
-	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6
+	github.com/go-ceres/ceres v0.0.4
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -16,4 +15,4 @@ require (
 	golang.org/x/sys v0.2.0 // indirect
 )
 
-replace github.com/go-ceres/ceres => ../../
+//replace github.com/go-ceres/ceres => ../../ // 开发时，发布时注释

@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/emicklei/proto v1.11.0
-	github.com/go-ceres/ceres v0.0.4-rc5
+	github.com/go-ceres/ceres v0.0.4
 	github.com/go-ceres/cli/v2 v2.2.3
 	github.com/google/wire v0.5.0
 	github.com/gookit/gcli/v3 v3.1.0
@@ -14,7 +14,7 @@ require (
 	vitess.io/vitess v0.15.1
 )
 
-replace github.com/go-ceres/ceres => ../../
+//replace github.com/go-ceres/ceres => ../../  // 开发时，发布时注释
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
