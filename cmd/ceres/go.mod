@@ -14,7 +14,7 @@ require (
 	vitess.io/vitess v0.15.1
 )
 
-//replace github.com/go-ceres/ceres => ../../  // 开发时，发布时注释
+replace github.com/go-ceres/ceres => ../../  // 开发时，发布时注释
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
