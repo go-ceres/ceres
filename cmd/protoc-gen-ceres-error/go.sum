@@ -6,8 +6,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
-github.com/go-ceres/ceres v0.0.4 h1:kuHWtElW2bfhaA8bcnZxfIHTMcnfFEuqu3oH0su1cNA=
-github.com/go-ceres/ceres v0.0.4/go.mod h1:bDYPBhibnBU4VFGnoEY5f97dGmHhO9RQcQVEc7qCSbc=
+github.com/go-ceres/ceres v0.0.5 h1:kuHWtElW2bfhaA8bcnZxfIHTMcnfFEuqu3oH0su1cNA=
+github.com/go-ceres/ceres v0.0.5/go.mod h1:bDYPBhibnBU4VFGnoEY5f97dGmHhO9RQcQVEc7qCSbc=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
