@@ -185,7 +185,12 @@ func ParseTable(table *sqlparser.CreateTable, database string, strict bool) *Tab
 		default:
 			// 如果是主键，不设置类型
 			if !field.Primary {
-				tags = append(tags, "type:"+column.Type.Type+"("+column.Type.Length.Val+")")
+				tags = append(tags, "type:"+column.Type.Type+func(literal *sqlparser.Literal) string {
+					if literal != nil {
+						return "(" + column.Type.Length.Val + ")"
+					}
+					return ""
+				}(column.Type.Length))
 			}
 		}
 		// 自增列tag

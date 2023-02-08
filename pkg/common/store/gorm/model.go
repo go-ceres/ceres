@@ -19,12 +19,14 @@ import (
 	"context"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"time"
 )
 
 type Model struct {
-	ID        uint64 `gorm:"primaryKey;"`
-	CreatedAt int64
-	UpdatedAt int64
+	ID        int64 `gorm:"primaryKey;"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // GetDB 从上下文中获取DB
