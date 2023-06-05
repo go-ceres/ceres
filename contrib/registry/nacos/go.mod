@@ -1,7 +1,7 @@
 module github.com/go-ceres/ceres/contrib/registry/nacos
 
 require (
-	github.com/go-ceres/ceres v0.0.5
+	github.com/go-ceres/ceres v0.0.6
 	github.com/nacos-group/nacos-sdk-go v1.0.9
 )
 
@@ -35,6 +35,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/go-ceres/ceres => ../../../
+//replace github.com/go-ceres/ceres => ../../../
 
 go 1.18

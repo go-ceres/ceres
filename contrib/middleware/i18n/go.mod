@@ -1,7 +1,7 @@
 module github.com/go-ceres/ceres/contrib/middleware/i18n
 
 require (
-	github.com/go-ceres/ceres v0.0.5
+	github.com/go-ceres/ceres v0.0.6
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	golang.org/x/text v0.4.0
 )
@@ -15,6 +15,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/go-ceres/ceres => ../../../
+//replace github.com/go-ceres/ceres => ../../../
 
 go 1.18
