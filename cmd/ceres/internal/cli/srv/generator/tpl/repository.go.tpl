@@ -1,4 +1,4 @@
-package repository
+package {{.PackageName}}
 
 import (
     "github.com/go-ceres/ceres/pkg/common/store/gorm"

@@ -32,6 +32,7 @@ var infrastructureTemplate string
 // genInfrastructure 生成基础设施层
 func (g *Generator) genInfrastructure(ctx DirContext, conf *config.Config) error {
 	dir := ctx.GetInfrastructure()
+	repositoryImpl := ctx.GetRepository()
 	err := pathx.MkdirIfNotExist(dir.Filename)
 	if err != nil {
 		return err
@@ -41,10 +42,7 @@ func (g *Generator) genInfrastructure(ctx DirContext, conf *config.Config) error
 		return err
 	}
 	pkgImport := fmt.Sprintf(`"%s"`, pkgPackage)
-	repositoryPackage, err := dir.GetChildPackage("repository")
-	if err != nil {
-		return err
-	}
+	repositoryPackage := repositoryImpl.Package
 	repositoryImport := fmt.Sprintf(`"%s"`, repositoryPackage)
 	imports := []string{pkgImport, repositoryImport}
 

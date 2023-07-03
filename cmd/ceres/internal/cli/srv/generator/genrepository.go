@@ -51,6 +51,7 @@ func (g *Generator) genRepository(ctx DirContext, proto model.Proto) error {
 		err = templatex.With("repository").GoFmt(true).Parse(text).SaveTo(map[string]interface{}{
 			"Imports":                strings.Join(imports, ","),
 			"IRepositoryPackageName": irepositoryDir.Base,
+			"PackageName":            dir.Base,
 			"ServiceName":            stringx.NewString(service.Name).ToCamel(),
 		}, repositoryFile, false)
 		if err != nil {

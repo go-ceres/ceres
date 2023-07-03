@@ -203,6 +203,12 @@ func (g *Generator) mkdir(project *ctx.Project, proto model.Proto, conf *config.
 	infrastructureDir := filepath.Join(internalDir, "infrastructure") // 基础设置层
 	pkgDir := filepath.Join(infrastructureDir, "pkg")                 // 依赖
 	repositoryDir := filepath.Join(infrastructureDir, "repository")   // 仓储
+	// 根据选择组件获取当前要实现的组件名称
+	for _, component := range conf.Components {
+		if component.Type == config.Orm {
+			repositoryDir = filepath.Join(repositoryDir, component.Name.Source()+"impl")
+		}
+	}
 	getChildPackage := func(parent, childPath string) (string, error) {
 		child := strings.TrimPrefix(childPath, parent)
 		abs := filepath.Join(parent, strings.ToLower(child))
