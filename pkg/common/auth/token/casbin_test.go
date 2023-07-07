@@ -55,5 +55,17 @@ func TestCasbin(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	type UserInfo struct {
+		RoleId int64
+	}
+	user := &UserInfo{
+		RoleId: 1,
+	}
+	// 获取session
+	logic := Logic{}
+	session := logic.GetSessionByLoginId("1", true)
+	session.DataMap["userInfo"] = user
+	session.Update()
 	print(enforce)
+
 }

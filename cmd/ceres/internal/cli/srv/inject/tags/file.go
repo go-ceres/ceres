@@ -26,6 +26,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -107,13 +108,15 @@ func WireFile(inputPath string, goMessages map[string]*Message, pb model.Proto) 
 			if ok && goMessages[message.Name] != nil && goMessages[message.Name].Fields[fieldName] != nil {
 				// 获取当前字段的信息
 				repMsg := goMessages[message.Name].Fields[fieldName]
-				// 修改json字段
-				repMsg.InjectTag += fmt.Sprintf(`json:"%s"`, normalField.Name)
 				for _, option := range normalField.Options {
 					t := tagType.FindStringSubmatch(option.Name)
 					if len(t) > 1 {
 						repMsg.InjectTag += fmt.Sprintf(` %s:"%s"`, t[1], option.Constant.Source)
 					}
+				}
+				if len(repMsg.InjectTag) == 0 || !strings.Contains(repMsg.InjectTag, "json") {
+					// 修改json字段
+					repMsg.InjectTag += fmt.Sprintf(`json:"%s"`, normalField.Name)
 				}
 				contents = injectTag(contents, repMsg)
 			}
