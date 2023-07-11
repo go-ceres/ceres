@@ -18,16 +18,52 @@ package http
 import (
 	"context"
 	"github.com/go-ceres/ceres/pkg/common/errors"
+	"github.com/go-ceres/ceres/pkg/transport"
 	"testing"
 )
 
-func TestServer(t *testing.T) {
-	srv := NewServer()
-	srv.Use(func(ctx *Context) error {
-		println("我也进来了")
+func Cors() transport.Middleware {
+	return func(handler transport.Handler) transport.Handler {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			c, ok := ctx.(*Context)
+			method := ""
+			if ok {
+				method = string(c.Request().Header.Method())
+				c.Response().Header.Set("Access-Control-Allow-Origin", "*")
+				c.Response().Header.Set("Access-Control-Allow-Headers", "*")
+				c.Response().Header.Set("Access-Control-Allow-Methods", "*")
+				c.Response().Header.Set("Access-Control-Expose-Headers", "*")
+				c.Response().Header.Set("Access-Control-Allow-Credentials", "true")
+				if method == "OPTIONS" {
+					c.SetStatusCode(StatusOK)
+					return nil, nil
+				}
+			}
+			return handler(ctx, req)
+		}
+	}
+}
 
+func TestServer(t *testing.T) {
+	srv := NewServer(
+		WithServerMiddleware(
+			Cors(),
+		),
+	)
+	srv.Use(func(ctx *Context) error {
+		method := string(ctx.Request().Header.Method())
+		ctx.Response().Header.Set("Access-Control-Allow-Origin", "*")
+		ctx.Response().Header.Set("Access-Control-Allow-Headers", "*")
+		ctx.Response().Header.Set("Access-Control-Allow-Methods", "*")
+		ctx.Response().Header.Set("Access-Control-Expose-Headers", "*")
+		ctx.Response().Header.Set("Access-Control-Allow-Credentials", "true")
+		if method == "OPTIONS" {
+			ctx.SetStatusCode(StatusOK)
+			return nil
+		}
 		return ctx.Next()
-	}).GET("/user/:id", func(ctx *Context) error {
+	})
+	srv.GET("/user/:id", func(ctx *Context) error {
 		println("进来了")
 		return errors.New(405, "错误", "错误信息")
 	})

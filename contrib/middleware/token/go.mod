@@ -1,6 +1,6 @@
 module github.com/go-ceres/ceres/contrib/middleware/token
 
-require github.com/go-ceres/ceres v0.0.6
+require github.com/go-ceres/ceres v0.0.7
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -16,7 +16,7 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

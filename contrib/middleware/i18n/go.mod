@@ -1,9 +1,9 @@
 module github.com/go-ceres/ceres/contrib/middleware/i18n
 
 require (
-	github.com/go-ceres/ceres v0.0.6
+	github.com/go-ceres/ceres v0.0.7
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
-	golang.org/x/text v0.4.0
+	golang.org/x/text v0.6.0
 )
 
 require (

@@ -1,9 +1,9 @@
 module github.com/go-ceres/ceres/cmd/protoc-gen-ceres
 
-go 1.18
+go 1.19
 
 require (
-	github.com/go-ceres/ceres v0.0.6
+	github.com/go-ceres/ceres v0.0.7
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 )
 
 //replace github.com/go-ceres/ceres => ../../ // 开发时，发布时注释

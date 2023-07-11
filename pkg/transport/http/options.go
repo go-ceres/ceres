@@ -40,6 +40,7 @@ type ServerOptions struct {
 	Address                       string                              `json:"address"`                       // 连接地址
 	Timeout                       time.Duration                       `json:"timeout"`                       // 超时时间
 	TlsConf                       *TlsConfig                          `json:"tlsConf"`                       // tls配置
+	AllowedMethods                []string                            `json:"allowed_methods"`               // 允许添加的方法
 	DisablePrintRoute             bool                                `json:"disablePrintRoute"`             // 禁止打印路由
 	Concurrency                   int                                 `json:"concurrency"`                   // 最大并发数.默认:256*1024
 	DisableDefaultContentType     bool                                `json:"disableDefaultContentType"`     // 禁用默认的响应类型 默认值：false
@@ -114,6 +115,7 @@ func DefaultServerOptions() *ServerOptions {
 	return &ServerOptions{
 		Network:               "tcp",
 		Address:               "0.0.0.0:5200",
+		AllowedMethods:        []string{MethodGet, MethodPost, MethodConnect, MethodDelete, MethodOptions, MethodHead, MethodPatch, MethodPut, MethodTrace},
 		Concurrency:           256 * 1024,
 		MaxRequestBodySize:    4 * 1024 * 1024,
 		ReadBufferSize:        4096,

@@ -79,6 +79,9 @@ func NewWithOptions(options *ServerOptions) *Server {
 			root:     true,
 		},
 	}
+	for _, method := range options.AllowedMethods {
+		srv.trees = append(srv.trees, &Router{method: method, root: &node{}})
+	}
 	srv.RouterGroup.server = srv
 	// 初始化服务
 	srv.init()
@@ -181,32 +184,33 @@ func (s *Server) next(ctx *Context) (err error) {
 	tree := s.trees[ctx.methodInt]
 	paramsPointer := &ctx.params
 	value := tree.find(rPath, paramsPointer, unescape)
-	if value.handlers != nil {
-		metadata := &Metadata{
-			operation:    value.pathTemplate,
-			pathTemplate: value.pathTemplate,
-			request:      ctx.Request(),
-			response:     ctx.Response(),
-		}
-		if s.endpoint != nil {
-			metadata.endpoint = s.endpoint.String()
-		}
-		ctx.SetUserContext(transport.NewMetadataServerContext(s.baseContext, metadata))
-		ctx.handlers = value.handlers
-		ctx.pathTemplate = value.pathTemplate
-		err = ctx.Next()
-		return
+	if len(value.handlers) == 0 {
+		value.handlers = append(s.RouterGroup.handlers, func(ctx *Context) error {
+			if ctx.method != MethodConnect && rPath != "/" {
+				if value.tsr && s.opts.RedirectTrailingSlash {
+					redirectTrailingSlash(ctx)
+					return nil
+				}
+				if s.opts.RedirectFixedPath && redirectFixedPath(ctx, tree.root, s.opts.RedirectFixedPath) {
+					return nil
+				}
+			}
+			return errors.NotFound("NOT_FOUND", "Cannot "+ctx.method+" "+ctx.pathOriginal)
+		})
 	}
-	if ctx.method != MethodConnect && rPath != "/" {
-		if value.tsr && s.opts.RedirectTrailingSlash {
-			redirectTrailingSlash(ctx)
-			return
-		}
-		if s.opts.RedirectFixedPath && redirectFixedPath(ctx, tree.root, s.opts.RedirectFixedPath) {
-			return
-		}
+	metadata := &Metadata{
+		operation:    value.pathTemplate,
+		pathTemplate: value.pathTemplate,
+		request:      ctx.Request(),
+		response:     ctx.Response(),
 	}
-	err = errors.NotFound("NOT_FOUND", "Cannot "+ctx.method+" "+ctx.pathOriginal)
+	if s.endpoint != nil {
+		metadata.endpoint = s.endpoint.String()
+	}
+	ctx.SetUserContext(transport.NewMetadataServerContext(s.baseContext, metadata))
+	ctx.handlers = value.handlers
+	ctx.pathTemplate = value.pathTemplate
+	err = ctx.Next()
 	return
 }
 
