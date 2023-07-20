@@ -17,7 +17,6 @@ package http
 
 import (
 	"context"
-	"github.com/go-ceres/ceres/pkg/common/errors"
 	"github.com/go-ceres/ceres/pkg/transport"
 	"testing"
 )
@@ -63,10 +62,11 @@ func TestServer(t *testing.T) {
 		}
 		return ctx.Next()
 	})
-	srv.GET("/user/:id", func(ctx *Context) error {
-		println("进来了")
-		return errors.New(405, "错误", "错误信息")
-	})
+	srv.Static("/files", "./")
+	//srv.GET("/user/:id", func(ctx *Context) error {
+	//	println("进来了")
+	//	return errors.New(405, "错误", "错误信息")
+	//})
 	err := srv.Start(context.Background())
 	if err != nil {
 		t.Error(err)

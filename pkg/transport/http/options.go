@@ -48,6 +48,7 @@ type ServerOptions struct {
 	DisableKeepalive              bool                                `json:"disableKeepalive"`              // 禁用保持活动连接, 默认值：false
 	MaxRequestBodySize            int                                 `json:"MaxRequestBodySize"`            // 服务接收最大的请求体大小，默认值：4*1024*1024
 	ServerHeader                  string                              `json:"serverHeader"`                  // 服务器默认header
+	CaseSensitive                 bool                                `json:"case_sensitive"`                // When set to true, enables case sensitive routing.
 	ReadTimeout                   time.Duration                       `json:"readTimeout"`                   // 读取超时时间，默认值：unlimited
 	WriteTimeout                  time.Duration                       `json:"writeTimeout"`                  // 写入超时时间，默认值：unlimited
 	IdleTimeout                   time.Duration                       `json:"idleTimeout"`                   // 启用keep-alive时等待下一个请求的最长时间,默认值：unlimited

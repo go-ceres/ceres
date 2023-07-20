@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/emicklei/proto v1.11.0
-	github.com/go-ceres/ceres v0.0.7
+	github.com/go-ceres/ceres v0.0.8
 	github.com/go-ceres/cli/v2 v2.2.3
 	github.com/google/wire v0.5.0
 	github.com/gookit/gcli/v3 v3.1.0

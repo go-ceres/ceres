@@ -23,6 +23,7 @@ import (
 	"golang.org/x/net/context"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -366,6 +367,8 @@ func (ctx *Context) Next() (err error) {
 
 // File 发送文件
 func (ctx *Context) File(path string) error {
+	ctx.fastCtx.SendFile(path)
+	ctx.SetStatusCode(http.StatusOK)
 	return nil
 }
 

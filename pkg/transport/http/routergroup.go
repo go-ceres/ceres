@@ -16,9 +16,12 @@
 package http
 
 import (
+	"github.com/go-ceres/ceres/internal/bytesconv"
+	strUtils "github.com/go-ceres/ceres/internal/strings"
 	"github.com/valyala/fasthttp"
 	"path"
 	"strings"
+	"time"
 )
 
 var _ IRouter = (*RouterGroup)(nil)
@@ -148,13 +151,134 @@ func (group *RouterGroup) StaticFile(relativePath string, filepath string) IRout
 
 // Static 静态目录
 func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
-	//TODO implement me
-	panic("implement me")
+	if path == "" {
+		path = "."
+	}
+	if relativePath == "" {
+		relativePath = "/"
+	}
+	// Prefix always start with a '/'
+	if relativePath[0] != '/' {
+		relativePath = "/" + relativePath
+	}
+	// in case-sensitive routing, all to lowercase
+	if group.server.opts.CaseSensitive {
+		relativePath = strUtils.ToLower(relativePath)
+	}
+	// Strip trailing slashes from the root path
+	if len(path) > 0 && path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
+	}
+	// Is prefix a direct wildcard?
+	isStar := relativePath == "*"
+	// Is prefix a partial wildcard?
+	if strings.Contains(relativePath, "*") {
+		// /john* -> /john
+		isStar = true
+		relativePath = strings.Split(relativePath, "*")[0]
+		// Fix this later
+	}
+	prefixLen := len(relativePath)
+	if prefixLen > 1 && relativePath[prefixLen-1:] == "/" {
+		// /john/ -> /john
+		prefixLen--
+		relativePath = relativePath[:prefixLen]
+	}
+	const cacheDuration = 10 * time.Second
+	fs := &fasthttp.FS{
+		Root:                 path,
+		AllowEmptyRoot:       true,
+		GenerateIndexPages:   false,
+		AcceptByteRange:      false,
+		Compress:             false,
+		CompressedFileSuffix: group.server.opts.CompressedFileSuffix,
+		CacheDuration:        cacheDuration,
+		IndexNames:           []string{"index.html"},
+		PathRewrite: func(fctx *fasthttp.RequestCtx) []byte {
+			path := fctx.Path()
+			if len(path) >= prefixLen {
+				if isStar && bytesconv.BytesToString(path[0:prefixLen]) == relativePath {
+					path = append(path[0:0], '/')
+				} else {
+					path = path[prefixLen:]
+					if len(path) == 0 || path[len(path)-1] != '/' {
+						path = append(path, '/')
+					}
+				}
+			}
+			if len(path) > 0 && path[0] != '/' {
+				path = append([]byte("/"), path...)
+			}
+			return path
+		},
+		PathNotFound: func(fctx *fasthttp.RequestCtx) {
+			fctx.Response.SetBodyString("not found")
+			fctx.Response.SetStatusCode(StatusNotFound)
+		},
+	}
+	fileHandler := fs.NewRequestHandler()
+	handler := func(ctx *Context) error {
+		// Serve file
+		fileHandler(ctx.fastCtx)
+		// Return request if found and not forbidden
+		status := ctx.fastCtx.Response.StatusCode()
+		if status != StatusNotFound && status != StatusForbidden {
+			return nil
+		}
+		// Reset response to default
+		ctx.fastCtx.SetContentType("")
+		ctx.fastCtx.Response.SetStatusCode(StatusOK)
+		ctx.fastCtx.Response.SetBodyString("")
+		return ctx.Next()
+	}
+	group.GET(relativePath+"/*filepath", handler)
+	group.HEAD(relativePath+"/*filepath", handler)
+	return group.returnIRouter()
 }
 
 func (group *RouterGroup) StaticFS(relativePath string, fs *fasthttp.FS) IRoutes {
-	//TODO implement me
-	panic("implement me")
+
+	if relativePath == "" {
+		relativePath = "/"
+	}
+	// Prefix always start with a '/'
+	if relativePath[0] != '/' {
+		relativePath = "/" + relativePath
+	}
+	// in case-sensitive routing, all to lowercase
+	if group.server.opts.CaseSensitive {
+		relativePath = strUtils.ToLower(relativePath)
+	}
+	// Is prefix a partial wildcard?
+	if strings.Contains(relativePath, "*") {
+		// /john* -> /john
+		relativePath = strings.Split(relativePath, "*")[0]
+		// Fix this later
+	}
+	prefixLen := len(relativePath)
+	if prefixLen > 1 && relativePath[prefixLen-1:] == "/" {
+		// /john/ -> /john
+		prefixLen--
+		relativePath = relativePath[:prefixLen]
+	}
+	fileHandler := fs.NewRequestHandler()
+	handler := func(ctx *Context) error {
+		// Serve file
+		fileHandler(ctx.fastCtx)
+		// Return request if found and not forbidden
+		status := ctx.fastCtx.Response.StatusCode()
+		if status != StatusNotFound && status != StatusForbidden {
+			return nil
+		}
+		// Reset response to default
+		ctx.fastCtx.SetContentType("")
+		ctx.fastCtx.Response.SetStatusCode(StatusOK)
+		ctx.fastCtx.Response.SetBodyString("")
+		return ctx.Next()
+	}
+	group.GET(relativePath+"/*filepath", handler)
+	group.HEAD(relativePath+"/*filepath", handler)
+	return group.returnIRouter()
 }
 
 // mergeHandlers 合并
