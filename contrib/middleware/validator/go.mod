@@ -1,6 +1,6 @@
 module github.com/go-ceres/ceres/contrib/middleware/validator
 
-require github.com/go-ceres/ceres v0.0.8
+require github.com/go-ceres/ceres v0.0.9
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect

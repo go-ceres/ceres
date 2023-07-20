@@ -12,8 +12,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/color v1.15.0 h1:kOqh6YHBtK8aywxGerMG2Eq3H6Qgoqeo13Bk2Mv/nBs=
 github.com/fatih/color v1.15.0/go.mod h1:0h5ZqXfHYED7Bhv2ZJamyIOUej9KtShiJESRwBDUSsw=
-github.com/go-ceres/ceres v0.0.8 h1:4EGtiVFAJnLiqHc36Vi6/pFom3at7MfF0cEVHMzSfFQ=
-github.com/go-ceres/ceres v0.0.8/go.mod h1:0ckkeiFoQQzA0jMbzvsta+m4gD74cyKSMKxmPpUzZLw=
+github.com/go-ceres/ceres v0.0.9 h1:TAeEZ3a7EcOIr+O5vN7iAy2Sbexf8PBhsdaNPK56vbM=
+github.com/go-ceres/ceres v0.0.9/go.mod h1:0ckkeiFoQQzA0jMbzvsta+m4gD74cyKSMKxmPpUzZLw=
 github.com/go-errors/errors v1.0.1/go.mod h1:f4zRHt4oKfwPJE5k8C9vpYG+aDHdBFUsgrm6/TyX73Q=
 github.com/go-errors/errors v1.4.2 h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
 github.com/go-errors/errors v1.4.2/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
