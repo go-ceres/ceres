@@ -16,7 +16,8 @@
 package http
 
 import (
-	"github.com/go-ceres/ceres/internal/bytesconv"
+	"expvar"
+	"fmt"
 	strUtils "github.com/go-ceres/ceres/internal/strings"
 	"github.com/valyala/fasthttp"
 	"path"
@@ -25,6 +26,20 @@ import (
 )
 
 var _ IRouter = (*RouterGroup)(nil)
+
+var (
+	// Counter for total number of fs calls
+	fsCalls = expvar.NewInt("fsCalls")
+
+	// Counters for various response status codes
+	fsOKResponses          = expvar.NewInt("fsOKResponses")
+	fsNotModifiedResponses = expvar.NewInt("fsNotModifiedResponses")
+	fsNotFoundResponses    = expvar.NewInt("fsNotFoundResponses")
+	fsOtherResponses       = expvar.NewInt("fsOtherResponses")
+
+	// Total size in bytes for OK response bodies served.
+	fsResponseBodyBytes = expvar.NewInt("fsResponseBodyBytes")
+)
 
 // IRouter 路由接口定义
 type IRouter interface {
@@ -169,12 +184,9 @@ func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
 	if len(path) > 0 && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
 	}
-	// Is prefix a direct wildcard?
-	isStar := relativePath == "*"
 	// Is prefix a partial wildcard?
 	if strings.Contains(relativePath, "*") {
 		// /john* -> /john
-		isStar = true
 		relativePath = strings.Split(relativePath, "*")[0]
 		// Fix this later
 	}
@@ -187,7 +199,7 @@ func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
 	const cacheDuration = 10 * time.Second
 	fs := &fasthttp.FS{
 		Root:                 path,
-		AllowEmptyRoot:       true,
+		AllowEmptyRoot:       false,
 		GenerateIndexPages:   false,
 		AcceptByteRange:      false,
 		Compress:             false,
@@ -197,13 +209,9 @@ func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
 		PathRewrite: func(fctx *fasthttp.RequestCtx) []byte {
 			path := fctx.Path()
 			if len(path) >= prefixLen {
-				if isStar && bytesconv.BytesToString(path[0:prefixLen]) == relativePath {
-					path = append(path[0:0], '/')
-				} else {
-					path = path[prefixLen:]
-					if len(path) == 0 || path[len(path)-1] != '/' {
-						path = append(path, '/')
-					}
+				path = path[prefixLen:]
+				if len(path) == 0 || path[len(path)-1] != '/' {
+					path = append(path, '/')
 				}
 			}
 			if len(path) > 0 && path[0] != '/' {
@@ -223,12 +231,14 @@ func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
 		// Return request if found and not forbidden
 		status := ctx.fastCtx.Response.StatusCode()
 		if status != StatusNotFound && status != StatusForbidden {
+			group.updateFSCounters(ctx.fastCtx)
 			return nil
 		}
 		// Reset response to default
+		content := fmt.Sprintf(`file "%s" not found`, ctx.Path())
 		ctx.fastCtx.SetContentType("")
 		ctx.fastCtx.Response.SetStatusCode(StatusOK)
-		ctx.fastCtx.Response.SetBodyString("")
+		ctx.fastCtx.Response.SetBodyString(content)
 		return ctx.Next()
 	}
 	group.GET(relativePath+"/*filepath", handler)
@@ -236,8 +246,26 @@ func (group *RouterGroup) Static(relativePath string, path string) IRoutes {
 	return group.returnIRouter()
 }
 
-func (group *RouterGroup) StaticFS(relativePath string, fs *fasthttp.FS) IRoutes {
+func (group *RouterGroup) updateFSCounters(ctx *fasthttp.RequestCtx) {
+	// Increment the number of fsHandler calls.
+	fsCalls.Add(1)
 
+	// Update other stats counters
+	resp := &ctx.Response
+	switch resp.StatusCode() {
+	case fasthttp.StatusOK:
+		fsOKResponses.Add(1)
+		fsResponseBodyBytes.Add(int64(resp.Header.ContentLength()))
+	case fasthttp.StatusNotModified:
+		fsNotModifiedResponses.Add(1)
+	case fasthttp.StatusNotFound:
+		fsNotFoundResponses.Add(1)
+	default:
+		fsOtherResponses.Add(1)
+	}
+}
+
+func (group *RouterGroup) StaticFS(relativePath string, fs *fasthttp.FS) IRoutes {
 	if relativePath == "" {
 		relativePath = "/"
 	}

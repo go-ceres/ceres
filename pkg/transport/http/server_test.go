@@ -62,7 +62,7 @@ func TestServer(t *testing.T) {
 		}
 		return ctx.Next()
 	})
-	srv.Static("/files", "./")
+	srv.Static("/files/uploads/*filepath", "./static/uploads")
 	//srv.GET("/user/:id", func(ctx *Context) error {
 	//	println("进来了")
 	//	return errors.New(405, "错误", "错误信息")
