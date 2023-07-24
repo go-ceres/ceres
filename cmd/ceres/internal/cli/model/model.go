@@ -16,18 +16,16 @@
 package model
 
 import (
-	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/model/action"
-	"github.com/go-ceres/ceres/cmd/ceres/internal/common/flag"
 	"github.com/go-ceres/cli/v2"
 )
 
 var (
 	Commands = []*cli.Command{
-		{
-			Name:   "ddl",
-			Flags:  append(action.DDlFlags, flag.CommonFlags...),
-			Usage:  "generate po for ceres",
-			Action: action.DDlAction,
-		},
+		//{
+		//	Name:   "ddl",
+		//	Flags:  append(action.DDlFlags, flag.CommonFlags...),
+		//	Usage:  "generate po for ceres",
+		//	Action: action.DDlAction,
+		//},
 	}
 )

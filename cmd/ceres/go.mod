@@ -11,7 +11,7 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/sirupsen/logrus v1.7.0
 	gorm.io/gorm v1.24.2
-	vitess.io/vitess v0.17.0
+	//vitess.io/vitess v0.17.0
 )
 
 //replace github.com/go-ceres/ceres => ../../ // 开发时，发布时注释
