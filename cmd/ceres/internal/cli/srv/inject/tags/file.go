@@ -103,6 +103,9 @@ func WireFile(inputPath string, goMessages map[string]*Message, pb model.Proto) 
 	for _, message := range pb.Message {
 		for _, element := range message.Elements {
 			normalField, ok := element.(*proto.NormalField)
+			if !ok {
+				continue
+			}
 			fieldName := stringx.NewString(normalField.Name).Title() // 字段名称
 			// 必须存在在结构体里的数据
 			if ok && goMessages[message.Name] != nil && goMessages[message.Name].Fields[fieldName] != nil {
