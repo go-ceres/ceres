@@ -106,7 +106,7 @@ func WireFile(inputPath string, goMessages map[string]*Message, pb model.Proto) 
 			if !ok {
 				continue
 			}
-			fieldName := stringx.NewString(normalField.Name).Title() // 字段名称
+			fieldName := stringx.NewString(normalField.Name).ToCamel() // 字段名称
 			// 必须存在在结构体里的数据
 			if ok && goMessages[message.Name] != nil && goMessages[message.Name].Fields[fieldName] != nil {
 				// 获取当前字段的信息
