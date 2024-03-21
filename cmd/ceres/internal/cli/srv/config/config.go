@@ -27,10 +27,12 @@ const (
 // Config 新建项目时的配置文件
 type Config struct {
 	Dist         string       // 项目输出路径，例如: .
+	DistAbs      string       // 输出地址绝对路径
 	ProtocOut    string       // proto文件输出目录
 	ConfigSource string       // 配置组件的类型，例如：file
 	Registry     bool         // 注册中心，例如：etcd
 	HttpServer   bool         // http服务实现
+	Verbose      bool         // 啰嗦模式
 	ProtoPath    []string     // proto_path 参数
 	GoOpt        []string     // protoc 的 opt参数
 	GoGrpcOpt    []string     // protoc 的go-grpc_opt 参数

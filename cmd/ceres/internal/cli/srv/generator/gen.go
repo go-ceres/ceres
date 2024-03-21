@@ -20,55 +20,42 @@ import (
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/inject/tags"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/parser"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/ctx"
-	"github.com/go-ceres/ceres/cmd/ceres/internal/util/pathx"
 	"path/filepath"
 	"strings"
 )
 
 func (g *Generator) Generate(conf *config.Config) error {
-	// 1.检查输出路径
-	abs, err := filepath.Abs(conf.Dist)
+	// 1.检查环境是否安装
+	err := g.Prepare()
 	if err != nil {
 		return err
 	}
 
-	// 2.创建输出文件夹
-	err = pathx.MkdirIfNotExist(abs)
+	// 2.获取项目信息
+	projectCtx, err := ctx.PrepareProject(conf.DistAbs)
 	if err != nil {
 		return err
 	}
 
-	// 3.检查环境是否安装
-	err = g.Prepare()
-	if err != nil {
-		return err
-	}
-
-	// 4.获取项目信息
-	projectCtx, err := ctx.PrepareProject(abs)
-	if err != nil {
-		return err
-	}
-
-	// 5.翻译proto原始文件为结构体
+	// 3.翻译proto原始文件为结构体
 	p := parser.NewDefaultProtoParser()
 	proto, err := p.Parse(conf.ProtoFile, true)
 	if err != nil {
 		return err
 	}
 
-	// 6.创建文件夹
+	// 4.创建文件夹
 	dirCtx, err := g.mkdir(projectCtx, proto, conf)
 	if err != nil {
 		return err
 	}
 
-	// 7.生成pb文件
+	// 5.生成pb文件
 	if err := g.GenPb(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 8.注入tag标签
+	// 6.注入tag标签
 	pbFileName := filepath.Join(dirCtx.GetProto().Filename, strings.TrimSuffix(proto.Name, ".proto")+".pb.go")
 	messages, err := tags.ParseFile(pbFileName, nil)
 	if err != nil {
@@ -79,77 +66,77 @@ func (g *Generator) Generate(conf *config.Config) error {
 		return err
 	}
 
-	// 9.生成配置文件
+	// 7.生成配置文件
 	if err := g.GenConfig(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 10.生成数据存储接口
+	// 8.生成数据存储接口
 	if err := g.genIRepository(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 11.生成实体对象
+	// 9.生成实体对象
 	if err := g.genEntity(dirCtx, proto); err != nil {
 		return err
 	}
-	// 12.生成业务business业务代码
+	// 10.生成业务business业务代码
 	if err := g.genBusiness(dirCtx, proto); err != nil {
 		return err
 	}
-	// 13.生成基础设施层存储层
+	// 11.生成基础设施层存储层
 	if err := g.genRepository(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 14.生成domain的provide
+	// 12.生成domain的provide
 	if err := g.genDomainProvide(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 15.生成基础设施层的包依赖初始化
+	// 13.生成基础设施层的包依赖初始化
 	if err := g.genPkg(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 16.生成基础设施的provide
+	// 14.生成基础设施的provide
 	if err := g.genInfrastructure(dirCtx, conf); err != nil {
 		return err
 	}
-	// 17.生成action
+	// 15.生成action
 	if err := g.genAction(dirCtx, proto, conf); err != nil {
 		return err
 	}
-	// 18.生成服务
+	// 16.生成服务
 	if err := g.GenService(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 19.生成服务注册
+	// 17.生成服务注册
 	if err := g.genServer(dirCtx, proto, conf); err != nil {
 		return err
 	}
 
-	// 20.生成acl，接口防腐层依赖注入
+	// 18.生成acl，接口防腐层依赖注入
 	if err := g.genAcl(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 21.生成依赖注入文件
+	// 19.生成依赖注入文件
 	if err := g.genWire(dirCtx, proto); err != nil {
 		return err
 	}
 
-	// 22.生成bootstrap文件
+	// 20.生成bootstrap文件
 	if err = g.genBootstrap(dirCtx, conf); err != nil {
 		return err
 	}
 
-	// 23.生成makefile文件
+	// 21.生成makefile文件
 	if err := g.genMakefile(dirCtx, proto); err != nil {
 		return err
 	}
-	// 24.生成dockerfile文件
+	// 22.生成dockerfile文件
 	if err := g.genDockerfile(dirCtx, proto); err != nil {
 		return err
 	}

@@ -16,6 +16,7 @@
 package action
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-ceres/ceres/cmd/ceres/internal/cli/srv/config"
@@ -68,41 +69,17 @@ var (
 	errInvalidDistOutput = errors.New("ceres: missing --dist")
 )
 
-var ProtocAction cli.ActionFunc = func(ctx *cli.Context) error {
-	// 创建默认配置
-	conf := config.DefaultConfig()
-	// 额外proto文件的路径
-	protoPath := ctx.StringSlice("proto_path")
-	// 如果有则添加到数组
-	if len(protoPath) > 0 {
-		conf.ProtoPath = append(conf.ProtoPath, protoPath...)
-	}
-	// go_opt go插件参数
-	conf.GoOpt = ctx.StringSlice("go_opt")
-	// go-grpc_opt grpc插件参数
-	conf.GoGrpcOpt = ctx.StringSlice("go-grpc_opt")
-	// proto_file proto文件路径
-	conf.ProtoFile = ctx.Args().First()
+// ParseDist 解析输出目录
+func ParseDist(ctx *cli.Context) (string, error) {
 	// 输出目录
-	conf.Dist = ctx.String("dist")
-	if len(conf.Dist) == 0 {
-		return errInvalidDistOutput
-	}
-	// 检查goOut目录是否有效
-	var err error
-	// 检查goGrpcOut目录是否有效
-	conf.ProtocOut, err = filepath.Abs(conf.ProtocOut)
-	if err != nil {
-		return err
-	}
-	// 创建protoc编译输出目录
-	if err := pathx.MkdirIfNotFound(conf.ProtocOut); err != nil {
-		return err
+	dist := ctx.String("dist")
+	if len(dist) == 0 {
+		return "", errInvalidDistOutput
 	}
 	// 获取当前工作目录
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return "", err
 	}
 	// 模板相关
 	home := ctx.String("home")
@@ -119,14 +96,49 @@ var ProtocAction cli.ActionFunc = func(ctx *cli.Context) error {
 		pathx.RegisterCeresHome(home)
 	}
 	// 设置输出目录
-	if !filepath.IsAbs(conf.Dist) {
-		conf.Dist = filepath.Join(pwd, conf.Dist)
+	if !filepath.IsAbs(dist) {
+		dist = filepath.Join(pwd, dist)
 	}
 	// 配置输出路径
-	conf.Dist, err = filepath.Abs(conf.Dist)
+	dist, err = filepath.Abs(dist)
 	if err != nil {
-		return err
+		return "", err
 	}
+	return dist, nil
+}
+
+func ParseConfig(ctx *cli.Context) (*config.Config, error) {
+	// 创建默认配置
+	conf := config.DefaultConfig()
+	// 额外proto文件的路径
+	protoPath := ctx.StringSlice("proto_path")
+	// 如果有则添加到数组
+	if len(protoPath) > 0 {
+		conf.ProtoPath = append(conf.ProtoPath, protoPath...)
+	}
+	// go_opt go插件参数
+	conf.GoOpt = ctx.StringSlice("go_opt")
+	// go-grpc_opt grpc插件参数
+	conf.GoGrpcOpt = ctx.StringSlice("go-grpc_opt")
+	// proto_file proto文件路径
+	conf.ProtoFile = ctx.Args().First()
+	// 检查goOut目录是否有效
+	var err error
+	// 解析输出目录
+	conf.Dist, err = ParseDist(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// 检查goGrpcOut目录是否有效
+	conf.ProtocOut, err = filepath.Abs(conf.ProtocOut)
+	if err != nil {
+		return nil, err
+	}
+	// 创建protoc编译输出目录
+	if err := pathx.MkdirIfNotFound(conf.ProtocOut); err != nil {
+		return nil, err
+	}
+
 	// 是否打印日志
 	verbose := ctx.Bool("verbose")
 	// 注册中心
@@ -189,8 +201,60 @@ func NewDiscovery(registry *` + registry + `.Registry) transport.Discover  {
 
 	// 是否增加http服务
 	conf.HttpServer = interact.Confirm("add http server?", false)
+	conf.Verbose = verbose
+	return conf, nil
+}
 
+var ProtocAction cli.ActionFunc = func(ctx *cli.Context) error {
+	dist, err := ParseDist(ctx)
+	if err != nil {
+		return err
+	}
+	// 1.检查输出路径
+	abs, err := filepath.Abs(dist)
+	if err != nil {
+		return err
+	}
+
+	// 2.创建输出文件夹
+	err = pathx.MkdirIfNotExist(abs)
+	if err != nil {
+		return err
+	}
+
+	conf := &config.Config{}
+	// 3.如果输出文件夹有ceres.lock文件则直接读取,没有则让用户选择
+	confFilename := filepath.Join(abs, "ceres.lock")
+	if pathx.FileExists(confFilename) {
+		file, err := os.Open(confFilename)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		codec := json.NewDecoder(file)
+		codec.UseNumber()
+		if err := codec.Decode(conf); err != nil {
+			return err
+		}
+	} else {
+		conf, err = ParseConfig(ctx)
+		if err != nil {
+			return err
+		}
+		// 设置路径
+		conf.DistAbs = abs
+		// 输出到文件
+		file, err := os.Create(confFilename)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		codec := json.NewEncoder(file)
+		if err := codec.Encode(conf); err != nil {
+			return err
+		}
+	}
 	// 创建生成器
-	g := generator.NewGenerator(ctx, "go_ceres", verbose)
+	g := generator.NewGenerator(ctx, "go_ceres", conf.Verbose)
 	return g.Generate(conf)
 }

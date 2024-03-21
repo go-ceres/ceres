@@ -17,8 +17,10 @@ package nacos
 
 import (
 	"github.com/go-ceres/ceres/pkg/common/config"
+	cLogger "github.com/go-ceres/ceres/pkg/common/logger"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/common/file"
+	"github.com/nacos-group/nacos-sdk-go/common/logger"
 	"os"
 	"time"
 )
@@ -34,6 +36,7 @@ type Options struct {
 	Kind           string                 `json:"kind"`        // 默认协议
 	ContentPath    string                 `json:"contentPath"` // nacos server contextpath
 	*ClientOptions `json:"clientOptions"` // nacos客户端配置
+	logger         logger.Logger          // 配置日志
 }
 
 // ClientOptions 客户端配置
@@ -81,16 +84,7 @@ func (c *ClientOptions) ToClientConfig() *constant.ClientConfig {
 		UpdateCacheWhenEmpty: c.UpdateCacheWhenEmpty,
 		Username:             c.Username,
 		Password:             c.Password,
-		LogDir:               c.LogDir,
-		RotateTime:           c.RotateTime,
-		MaxAge:               c.MaxAge,
-		LogLevel:             c.LogLevel,
-		LogSampling: &constant.ClientLogSamplingConfig{
-			Initial:    c.Initial,
-			Thereafter: c.Thereafter,
-			Tick:       c.Tick,
-		},
-		ContextPath: c.ContextPath,
+		ContextPath:          c.ContextPath,
 	}
 }
 
@@ -101,6 +95,7 @@ func DefaultOptions() *Options {
 		Group:   constant.DEFAULT_GROUP,
 		Weight:  100,
 		Kind:    "grpc",
+		logger:  NewLogger(cLogger.With(cLogger.FieldMod("nacos"))),
 		ClientOptions: &ClientOptions{
 			TimeoutMs:            10 * 1000,
 			BeatInterval:         5 * 1000,

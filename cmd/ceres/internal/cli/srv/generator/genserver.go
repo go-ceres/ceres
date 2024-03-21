@@ -105,6 +105,10 @@ func (g *Generator) genHTTPServer(ctx DirContext, proto model.Proto, conf *confi
 			fmt.Sprintf("%s.Register%s(srv,%s)", "proto", stringx.NewString(service.Name).ToCamel()+"HTTPServer", paramName),
 		)
 	}
+	// 增加upload_service
+	paramName := stringx.NewString(stringx.NewString("upload").ToCamel()).UnTitle()
+	serverParamsList = append(serverParamsList, fmt.Sprintf("%s *%s.%s", paramName, ctx.GetService().Base, "UploadService"))
+	registerServerList = append(registerServerList, fmt.Sprintf(`%s.RegisterServer(srv) // 注册服务`, paramName))
 	text, err := pathx.LoadTpl(category, httpServerTemplateFilename, httpServerTemplate)
 	if err != nil {
 		return err

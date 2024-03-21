@@ -7,7 +7,6 @@ import (
     "github.com/go-ceres/ceres/pkg/common/config/file"
     "github.com/go-ceres/ceres/pkg/common/flag"
     "github.com/go-ceres/ceres/pkg/common/logger"
-    "github.com/go-ceres/ceres/pkg/transport"
     "github.com/go-ceres/ceres/pkg/transport/grpc"{{if .HttpServer}}
     "github.com/go-ceres/ceres/pkg/transport/http"{{end}}
 

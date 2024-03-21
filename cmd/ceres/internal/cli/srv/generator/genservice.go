@@ -39,6 +39,9 @@ func (s *{{.service}}Service) {{.method}} ({{if .notStream}}ctx context.Context,
 //go:embed tpl/service.go.tpl
 var serviceTemplate string
 
+//go:embed tpl/upload.go.tpl
+var uploadServiceTemplate string
+
 type ActionDesc struct {
 	ActionName    string
 	UnTitleName   string
@@ -105,8 +108,27 @@ func (g *Generator) GenService(ctx DirContext, proto model.Proto, conf *config.C
 			return err
 		}
 	}
+	// 生成上传服务
+	if err := g.GenUploadService(ctx, proto, conf); err != nil {
+		return err
+	}
 	// 生成服务提供者
 	return g.genServiceProvide(ctx, proto)
+}
+
+// GenUploadService 生成上传服务文件
+func (g *Generator) GenUploadService(ctx DirContext, proto model.Proto, conf *config.Config) error {
+	// 生成服务
+	dir := ctx.GetService()
+	uploadServiceFilename := filepath.Join(dir.Filename, "upload_service.go")
+	text, err := pathx.LoadTpl(category, serviceTemplateFilename, uploadServiceTemplate)
+	if err != nil {
+		return err
+	}
+	return templatex.With("upload_service").
+		GoFmt(true).
+		Parse(text).
+		SaveTo(map[string]interface{}{}, uploadServiceFilename, false)
 }
 
 // genServiceProvide 生成service的服务提供者
@@ -121,6 +143,8 @@ func (g *Generator) genServiceProvide(ctx DirContext, proto model.Proto) error {
 	for _, service := range proto.Service {
 		provideSetList = append(provideSetList, fmt.Sprintf(`New%sService`, stringx.NewString(service.Name).ToCamel()))
 	}
+	// 增加upload_service
+	provideSetList = append(provideSetList, `NewUploadService`)
 	text, err := pathx.LoadTpl(category, provideTemplateFilename, provideTemplate)
 	if err != nil {
 		return err
