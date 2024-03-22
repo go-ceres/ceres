@@ -155,9 +155,9 @@ func (s *Server) serverErrorHandler(requestCtx *fasthttp.RequestCtx, err error) 
 		err = errors.RequestHeaderFieldsTooLarge("REQUEST_HEADER_FIELDS_TOO_LARGE", statusMessage[StatusRequestHeaderFieldsTooLarge])
 	} else if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
 		err = errors.RequestTimeout("REQUEST_TIMEOUT", statusMessage[StatusRequestTimeout])
-	} else if err == fasthttp.ErrBodyTooLarge {
+	} else if errors.Is(err, fasthttp.ErrBodyTooLarge) {
 		err = errors.RequestEntityTooLarge("BODY_TOO_LARGE", statusMessage[StatusRequestEntityTooLarge])
-	} else if err == fasthttp.ErrGetOnly {
+	} else if errors.Is(err, fasthttp.ErrGetOnly) {
 		err = errors.MethodNotAllowed("METHOD_NOT_ALLOWED", statusMessage[StatusMethodNotAllowed])
 	} else if strings.Contains(err.Error(), "timeout") {
 		err = errors.RequestTimeout("REQUEST_TIMEOUT", statusMessage[StatusRequestTimeout])
