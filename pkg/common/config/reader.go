@@ -17,10 +17,10 @@ package config
 
 import (
 	"bytes"
+	"dario.cat/mergo"
 	"encoding/gob"
 	"fmt"
 	"github.com/go-ceres/ceres/pkg/common/codec"
-	"github.com/imdario/mergo"
 	"strings"
 	"sync"
 )

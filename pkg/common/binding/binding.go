@@ -22,7 +22,6 @@ import (
 	"github.com/go-ceres/ceres/internal/bytesconv"
 	"github.com/go-ceres/ceres/pkg/common/codec"
 	_ "github.com/go-ceres/ceres/pkg/common/codec/json"
-	"github.com/henrylee2cn/ameda"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -171,7 +170,7 @@ func (b *Binding) getStringValue(value reflect.Value) string {
 func (b *Binding) receiverValueOf(receiver interface{}) (reflect.Value, error) {
 	v := reflect.ValueOf(receiver)
 	if v.Kind() == reflect.Ptr {
-		v = ameda.DereferencePtrValue(v)
+		v = v.Elem()
 		if v.IsValid() && v.CanAddr() {
 			return v, nil
 		}

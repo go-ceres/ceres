@@ -393,9 +393,16 @@ func (ctx *Context) Err() error {
 	return ctx.fastCtx.Err()
 }
 
+// WithValue 设置值
+func (ctx *Context) WithValue(key, value any) {
+	parant := ctx.UserContext()
+	child := context.WithValue(parant, key, value)
+	ctx.SetUserContext(child)
+}
+
 func (ctx *Context) Value(key any) any {
 	if ctx.fastCtx == nil {
 		return nil
 	}
-	return ctx.fastCtx.UserValue(key)
+	return ctx.UserContext().Value(key)
 }
