@@ -59,16 +59,16 @@ func (u *UploadService) Upload(ctx *http.Context) error {
     filenames := make([]string, 0)
     ip := ctx.GetRequestHeader("X-Real-IP")
     uErrors := make([]error, 0)
-    if fileheaders, ok := form.File["file"]; ok {
-        for _, fileheader := range fileheaders {
-            filename := strings.ToLower(fileheader.Filename)
-            f, err := fileheader.Open()
+    if fileHeaders, ok := form.File["file"]; ok {
+        for _, fileHeader := range fileHeaders {
+            filename := strings.ToLower(fileHeader.Filename)
+            f, err := fileHeader.Open()
             if err != nil {
                 uErrors = append(uErrors, err)
                 continue
             }
-            filebuf := make([]byte, fileheader.Size)
-            _, err = f.Read(filebuf)
+            fileBuf := make([]byte, fileHeader.Size)
+            _, err = f.Read(fileBuf)
             if err != nil {
                 uErrors = append(uErrors, err)
                 continue
@@ -81,7 +81,7 @@ func (u *UploadService) Upload(ctx *http.Context) error {
                 continue
             }
             defer file.Close()
-            _, err = file.Write(filebuf)
+            _, err = file.Write(fileBuf)
             if err != nil {
                 uErrors = append(uErrors, err)
                 continue
