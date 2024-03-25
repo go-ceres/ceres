@@ -3,7 +3,7 @@ module github.com/go-ceres/ceres/contrib/client/etcd
 go 1.21.1
 
 require (
-	github.com/go-ceres/ceres v0.0.11
+	github.com/go-ceres/ceres v0.0.12
 	go.etcd.io/etcd/client/v3 v3.5.12
 )
 

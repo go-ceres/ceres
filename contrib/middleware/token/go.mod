@@ -1,6 +1,6 @@
 module github.com/go-ceres/ceres/contrib/middleware/token
 
-require github.com/go-ceres/ceres v0.0.11
+require github.com/go-ceres/ceres v0.0.12
 
 require (
 	dario.cat/mergo v1.0.0 // indirect

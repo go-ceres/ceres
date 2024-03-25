@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/emicklei/proto v1.13.2
-	github.com/go-ceres/ceres v0.0.11
+	github.com/go-ceres/ceres v0.0.12
 	github.com/go-ceres/cli/v2 v2.2.3
 	github.com/google/wire v0.6.0
 	github.com/gookit/gcli/v3 v3.2.3
