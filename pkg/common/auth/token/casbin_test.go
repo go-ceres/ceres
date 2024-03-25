@@ -62,7 +62,7 @@ func TestCasbin(t *testing.T) {
 		RoleId: 1,
 	}
 	// 获取session
-	logic := Logic{}
+	logic := logic{}
 	session := logic.GetSessionByLoginId("1", true)
 	session.DataMap["userInfo"] = user
 	session.Update()

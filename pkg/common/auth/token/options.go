@@ -180,7 +180,7 @@ func (o *Options) WithOptions(opts ...Option) *Options {
 	return o
 }
 
-func (o *Options) Build() *Logic {
+func (o *Options) Build() Logic {
 	return NewLogic(o)
 }
 

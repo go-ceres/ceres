@@ -20,12 +20,69 @@ import (
 	"time"
 )
 
-type Logic struct {
+// Logic 接口
+type Logic interface {
+	GetLogicType() string
+	GetTokenName() string
+	CreateTokenValue(loginId string, device string) string
+	GetTokenInfo(tokenValue string) *Info
+	Login(loginId string, opts ...LoginOption) (string, error)
+	Logout(loginId string, device string)
+	LogoutByTokenValue(tokenValue string)
+	Replaced(loginId string, device string) error
+	IsLogin(tokenValue string) bool
+	CheckLogin(tokenValue string) bool
+	GetLoginId(tokenValue string) (string, error)
+	GetLoginIdByToken(tokenValue string) string
+	GetLoginIdNotHandle(tokenValue string) string
+	GetLoginIdDefaultNull(tokenValue string) string
+	IsValidLoginId(loginId string) bool
+	clearTokenCommonMethod(loginId string, device string, callBack func(token string), isLogoutSession bool)
+	UpdateTokenToIdMapping(tokenValue string, loginId string)
+	DeleteTokenToIdMapping(tokenValue string)
+	SaveTokenToIdMapping(tokenValue string, loginId string, timeout int64)
+	Disable(loginId string, disableTime int64) bool
+	IsDisable(loginId string) bool
+	GetDisableTime(loginId string) int64
+	DeleteTokenSession(tokenValue string)
+	GetSessionBySessionId(sessionId string, isCreate bool) *Session
+	GetSessionByLoginId(loginId string, isCreate bool) *Session
+	CreateSession(sessionId string) *Session
+	clearLastActivity(tokenValue string)
+	setLastActivityToNow(tokenValue string)
+	UpdateLastActivityToNow(tokenValue string)
+	CheckActivityTimeout(tokenValue string) error
+	GetTokenTimeout(tokenValue string) int64
+	GetSessionTimeoutByLoginId(loginId string) int64
+	GetTokenSessionTimeoutByTokenValue(tokenValue string) int64
+	GetTokenActivityTimeoutByToken(tokenValue string) int64
+	GetRoleList(loginId string) ([]string, error)
+	HasRole(loginId string, role string) bool
+	HasRoleAnd(loginId string, roleArray ...string) bool
+	CheckRoleOr(loginId string, roleArray ...string) bool
+	GetPermissionList(loginId string) []string
+	HasPermission(loginId string, permission string) bool
+	HasPermissionAnd(loginId string, permissionArray ...string) bool
+	HasPermissionOr(loginId string, permissionArray ...string) bool
+	HasPathPermission(loginId string, path string, method string) bool
+	GetLoginDevice(tokenValue string) string
+	GetTokenValueByLoginId(loginId string, device string) string
+	GetTokenValueListByLoginId(loginId string, device string) []string
+	splicingDisableKey(loginId string) string
+	splicingSessionKey(loginId string) string
+	splicingLastActivityTimeKey(tokenValue string) string
+	splicingTokenSessionKey(tokenValue string) string
+	splicingTokenValueKey(tokenValue string) string
+	splicingSwitchKey(tokenValue string) string
+}
+
+// logic 实现
+type logic struct {
 	conf *Options
 }
 
 // NewLogic 根据配置创建一个auth处理逻辑
-func NewLogic(c ...*Options) *Logic {
+func NewLogic(c ...*Options) Logic {
 	conf := DefaultOptions()
 	if len(c) > 0 {
 		conf = c[0]
@@ -51,30 +108,30 @@ func NewLogic(c ...*Options) *Logic {
 		}
 	}
 
-	return &Logic{
+	return &logic{
 		conf: conf,
 	}
 }
 
 // GetLogicType 获取登录逻辑
-func (l *Logic) GetLogicType() string {
+func (l *logic) GetLogicType() string {
 	return l.conf.LogicType
 }
 
 // ================== 获取token相关 =================
 
 // GetTokenName 获取当前logic的token名
-func (l *Logic) GetTokenName() string {
+func (l *logic) GetTokenName() string {
 	return l.conf.TokenName
 }
 
 // CreateTokenValue 创建token
-func (l *Logic) CreateTokenValue(loginId string, device string) string {
+func (l *logic) CreateTokenValue(loginId string, device string) string {
 	return l.conf.tokenBuilder.Build(loginId, l.conf.LogicType, device)
 }
 
 // GetTokenInfo 获取指定token的登录信息
-func (l *Logic) GetTokenInfo(tokenValue string) *Info {
+func (l *logic) GetTokenInfo(tokenValue string) *Info {
 	info := new(Info)
 	info.Name = l.GetTokenName()
 	info.Value = tokenValue
@@ -95,7 +152,7 @@ func (l *Logic) GetTokenInfo(tokenValue string) *Info {
 //
 //	loginId – 账号id
 //	opts – 设备和超时时间
-func (l *Logic) Login(loginId string, opts ...LoginOption) (string, error) {
+func (l *logic) Login(loginId string, opts ...LoginOption) (string, error) {
 	// 1.判断用户id
 	if loginId == "" {
 		return "", ErrorNoToken("账号id不能为空")
@@ -148,7 +205,7 @@ func (l *Logic) Login(loginId string, opts ...LoginOption) (string, error) {
 //
 //	loginId – 账号id
 //	device – 设备标识 (填""代表所有注销设备)
-func (l *Logic) Logout(loginId string, device string) {
+func (l *logic) Logout(loginId string, device string) {
 	l.clearTokenCommonMethod(loginId, device, func(token string) {
 		// 删除Token-Id映射 & 清除Token-Session
 		l.DeleteTokenToIdMapping(token)
@@ -161,7 +218,7 @@ func (l *Logic) Logout(loginId string, device string) {
 // 形参：
 //
 //	tokenValue - token值
-func (l *Logic) LogoutByTokenValue(tokenValue string) {
+func (l *logic) LogoutByTokenValue(tokenValue string) {
 	// 1. 清理 token-last-activity
 	l.clearLastActivity(tokenValue)
 	// 2. 注销 Token-Session
@@ -192,7 +249,7 @@ func (l *Logic) LogoutByTokenValue(tokenValue string) {
 //
 //	loginId – 账号id
 //	device – 设备标识 (填null代表顶替所有设备)
-func (l *Logic) Replaced(loginId string, device string) error {
+func (l *logic) Replaced(loginId string, device string) error {
 	// 如果没有id
 	if len(loginId) == 0 {
 		return ErrorNoUserId("LoginId 不能为空")
@@ -211,14 +268,14 @@ func (l *Logic) Replaced(loginId string, device string) error {
 // IsLogin 查询指定token是否登录
 // 形参
 // tokenValue -- token值
-func (l *Logic) IsLogin(tokenValue string) bool {
+func (l *logic) IsLogin(tokenValue string) bool {
 	return len(l.GetLoginIdDefaultNull(tokenValue)) != 0
 }
 
 // CheckLogin 查询指定token是否登录
 // 形参
 // tokenValue -- token值
-func (l *Logic) CheckLogin(tokenValue string) bool {
+func (l *logic) CheckLogin(tokenValue string) bool {
 	loginId, err := l.GetLoginId(tokenValue)
 	if err != nil {
 		return false
@@ -232,7 +289,7 @@ func (l *Logic) CheckLogin(tokenValue string) bool {
 // GetLoginId 根据指定token获取用户，不存在则返回错误信息
 // 形参：
 // tokenValue - 指定的token
-func (l *Logic) GetLoginId(tokenValue string) (string, error) {
+func (l *logic) GetLoginId(tokenValue string) (string, error) {
 	// 查找此token对应loginId, 如果找不到则抛出：无效token
 	loginId := l.GetLoginIdByToken(tokenValue)
 	switch loginId {
@@ -262,7 +319,7 @@ func (l *Logic) GetLoginId(tokenValue string) (string, error) {
 // 形参:
 //
 //	tokenValue – token
-func (l *Logic) GetLoginIdByToken(tokenValue string) string {
+func (l *logic) GetLoginIdByToken(tokenValue string) string {
 	if len(tokenValue) == 0 {
 		return ""
 	}
@@ -272,12 +329,12 @@ func (l *Logic) GetLoginIdByToken(tokenValue string) string {
 // GetLoginIdNotHandle 获取指定Token对应的账号id (不做任何特殊处理)
 // 形参:
 // tokenValue – token值
-func (l *Logic) GetLoginIdNotHandle(tokenValue string) string {
+func (l *logic) GetLoginIdNotHandle(tokenValue string) string {
 	return l.conf.storage.Get(l.splicingTokenValueKey(tokenValue))
 }
 
 // GetLoginIdDefaultNull 获取当前会话账号id, 如果未登录，则返回"",并返回错误
-func (l *Logic) GetLoginIdDefaultNull(tokenValue string) string {
+func (l *logic) GetLoginIdDefaultNull(tokenValue string) string {
 	// 如果连token都是空的，则直接返回
 	if len(tokenValue) == 0 {
 		return ""
@@ -299,7 +356,7 @@ func (l *Logic) GetLoginIdDefaultNull(tokenValue string) string {
 // IsValidLoginId 判断指定用户id是否有效
 // 形参
 // loginId - 用户id
-func (l *Logic) IsValidLoginId(loginId string) bool {
+func (l *logic) IsValidLoginId(loginId string) bool {
 	return len(loginId) != 0 && !AbnormalList[loginId]
 }
 
@@ -309,7 +366,7 @@ func (l *Logic) IsValidLoginId(loginId string) bool {
 // device – 设备标识
 // callBack – 回调函数
 // isLogoutSession – 是否注销 User-Session
-func (l *Logic) clearTokenCommonMethod(loginId string, device string, callBack func(token string), isLogoutSession bool) {
+func (l *logic) clearTokenCommonMethod(loginId string, device string, callBack func(token string), isLogoutSession bool) {
 	// 1.没有获取到session，表示账号并没有登录，则不需要任何操作
 	ss := l.GetSessionByLoginId(loginId, false)
 	if len(ss.Id) == 0 {
@@ -337,7 +394,7 @@ func (l *Logic) clearTokenCommonMethod(loginId string, device string, callBack f
 //
 //	tokenValue – token值
 //	loginId – 新的账号Id值
-func (l *Logic) UpdateTokenToIdMapping(tokenValue string, loginId string) {
+func (l *logic) UpdateTokenToIdMapping(tokenValue string, loginId string) {
 	l.conf.storage.Update(l.splicingTokenValueKey(tokenValue), loginId)
 }
 
@@ -345,7 +402,7 @@ func (l *Logic) UpdateTokenToIdMapping(tokenValue string, loginId string) {
 // 形参:
 //
 //	tokenValue – token值
-func (l *Logic) DeleteTokenToIdMapping(tokenValue string) {
+func (l *logic) DeleteTokenToIdMapping(tokenValue string) {
 	l.conf.storage.Del(l.splicingTokenValueKey(tokenValue))
 }
 
@@ -354,7 +411,7 @@ func (l *Logic) DeleteTokenToIdMapping(tokenValue string) {
 // tokenValue – token值
 // loginId – 账号id
 // timeout – 会话有效期 (单位: 秒)
-func (l *Logic) SaveTokenToIdMapping(tokenValue string, loginId string, timeout int64) {
+func (l *logic) SaveTokenToIdMapping(tokenValue string, loginId string, timeout int64) {
 	l.conf.storage.Set(l.splicingTokenValueKey(tokenValue), loginId, timeout)
 }
 
@@ -364,17 +421,17 @@ func (l *Logic) SaveTokenToIdMapping(tokenValue string, loginId string, timeout 
 // 形参:
 // loginId - 账号id
 // disableTime - 封禁时长 （-1=永久封禁）
-func (l *Logic) Disable(loginId string, disableTime int64) bool {
+func (l *logic) Disable(loginId string, disableTime int64) bool {
 	return l.conf.storage.Set(l.splicingDisableKey(loginId), disableValue, disableTime)
 }
 
 // IsDisable 判断指定账号是否被封禁停用
-func (l *Logic) IsDisable(loginId string) bool {
+func (l *logic) IsDisable(loginId string) bool {
 	return l.conf.storage.Get(l.splicingDisableKey(loginId)) != ""
 }
 
 // GetDisableTime 获取封禁时间
-func (l *Logic) GetDisableTime(loginId string) int64 {
+func (l *logic) GetDisableTime(loginId string) int64 {
 	return l.conf.storage.TTl(l.splicingDisableKey(loginId))
 }
 
@@ -383,14 +440,14 @@ func (l *Logic) GetDisableTime(loginId string) int64 {
 // DeleteTokenSession 删除Token-Session
 // 形参:
 // tokenValue – token值
-func (l *Logic) DeleteTokenSession(tokenValue string) {
+func (l *logic) DeleteTokenSession(tokenValue string) {
 	l.conf.storage.Del(l.splicingTokenSessionKey(tokenValue))
 }
 
 // ================== user-session相关 =================
 
 // GetSessionBySessionId 根据SessionId获取session对象
-func (l *Logic) GetSessionBySessionId(sessionId string, isCreate bool) *Session {
+func (l *logic) GetSessionBySessionId(sessionId string, isCreate bool) *Session {
 	ss := &Session{storage: l.conf.storage}
 	_ = l.conf.storage.GetObject(sessionId, ss)
 	// 如果没有获取到session，并且设置了自动创建
@@ -404,12 +461,12 @@ func (l *Logic) GetSessionBySessionId(sessionId string, isCreate bool) *Session 
 }
 
 // GetSessionByLoginId 获取指定loginId的session
-func (l *Logic) GetSessionByLoginId(loginId string, isCreate bool) *Session {
+func (l *logic) GetSessionByLoginId(loginId string, isCreate bool) *Session {
 	return l.GetSessionBySessionId(l.splicingSessionKey(loginId), isCreate)
 }
 
 // CreateSession 创建一个session
-func (l *Logic) CreateSession(sessionId string) *Session {
+func (l *logic) CreateSession(sessionId string) *Session {
 	return NewSession(sessionId, l.conf.storage)
 }
 
@@ -418,7 +475,7 @@ func (l *Logic) CreateSession(sessionId string) *Session {
 // clearLastActivity 清除指定token的 [最后操作时间]
 // 形参:
 // tokenValue – 指定token
-func (l *Logic) clearLastActivity(tokenValue string) {
+func (l *logic) clearLastActivity(tokenValue string) {
 	// 如果没有传入tokenValue或者配置了不验证最后存活时间
 	if len(tokenValue) == 0 || l.conf.ActivityTimeout == NeverExpire {
 		return
@@ -430,7 +487,7 @@ func (l *Logic) clearLastActivity(tokenValue string) {
 // setLastActivityToNow 写入指定token的 [最后操作时间] 为当前时间戳
 // 形参:
 // tokenValue – 指定token
-func (l *Logic) setLastActivityToNow(tokenValue string) {
+func (l *logic) setLastActivityToNow(tokenValue string) {
 	if len(tokenValue) == 0 || l.conf.ActivityTimeout == NeverExpire {
 		return
 	}
@@ -440,7 +497,7 @@ func (l *Logic) setLastActivityToNow(tokenValue string) {
 // UpdateLastActivityToNow 续签指定token：(将 [最后操作时间] 更新为当前时间戳)
 // 形参:
 // tokenValue – 指定token
-func (l *Logic) UpdateLastActivityToNow(tokenValue string) {
+func (l *logic) UpdateLastActivityToNow(tokenValue string) {
 	// 如果token为空 或者 设置了[永不过期], 则立即返回
 	if len(tokenValue) == 0 || l.conf.ActivityTimeout == NeverExpire {
 		return
@@ -451,7 +508,7 @@ func (l *Logic) UpdateLastActivityToNow(tokenValue string) {
 // CheckActivityTimeout 检查指定token 是否已经[临时过期]，如果已经过期则返回错误
 // 形参：
 // tokenValue - token值
-func (l *Logic) CheckActivityTimeout(tokenValue string) error {
+func (l *logic) CheckActivityTimeout(tokenValue string) error {
 	// 如果token为空 或者 设置了[永不过期], 则立即返回
 	if len(tokenValue) == 0 || l.conf.ActivityTimeout == NeverExpire {
 		return nil
@@ -473,28 +530,28 @@ func (l *Logic) CheckActivityTimeout(tokenValue string) error {
 // GetTokenTimeout 获取指定token的过期时间
 // 形参：
 // tokenValue - 指定token
-func (l *Logic) GetTokenTimeout(tokenValue string) int64 {
+func (l *logic) GetTokenTimeout(tokenValue string) int64 {
 	return l.conf.storage.TTl(l.splicingTokenValueKey(tokenValue))
 }
 
 // GetSessionTimeoutByLoginId 获取指定 loginId 的 User-Session 剩余有效时间 (单位: 秒)
 // 形参：
 // loginId - 指定用户
-func (l *Logic) GetSessionTimeoutByLoginId(loginId string) int64 {
+func (l *logic) GetSessionTimeoutByLoginId(loginId string) int64 {
 	return l.conf.storage.TTl(l.splicingSessionKey(loginId))
 }
 
 // GetTokenSessionTimeoutByTokenValue 获取指定 Token-Session 剩余有效时间 (单位: 秒)
 // 形参:
 // tokenValue – 指定token
-func (l *Logic) GetTokenSessionTimeoutByTokenValue(tokenValue string) int64 {
+func (l *logic) GetTokenSessionTimeoutByTokenValue(tokenValue string) int64 {
 	return l.conf.storage.TTl(l.splicingTokenValueKey(tokenValue))
 }
 
 // GetTokenActivityTimeoutByToken 获取指定token的临时有效期
 // 形参:
 // tokenValue – 指定token
-func (l *Logic) GetTokenActivityTimeoutByToken(tokenValue string) int64 {
+func (l *logic) GetTokenActivityTimeoutByToken(tokenValue string) int64 {
 	// 如果token为空 , 则返回 -2
 	if len(tokenValue) == 0 {
 		return NotValueExpire
@@ -527,7 +584,7 @@ func (l *Logic) GetTokenActivityTimeoutByToken(tokenValue string) int64 {
 // 形参:
 //
 //	loginId – 指定账号id
-func (l *Logic) GetRoleList(loginId string) ([]string, error) {
+func (l *logic) GetRoleList(loginId string) ([]string, error) {
 	return l.conf.permission.GetRoleListSlice(loginId, l.conf.LogicType)
 }
 
@@ -536,7 +593,7 @@ func (l *Logic) GetRoleList(loginId string) ([]string, error) {
 //
 //	loginId – 账号id
 //	role – 角色标识
-func (l *Logic) HasRole(loginId string, role string) bool {
+func (l *logic) HasRole(loginId string, role string) bool {
 	list, err := l.GetRoleList(loginId)
 	if err != nil {
 		return false
@@ -549,7 +606,7 @@ func (l *Logic) HasRole(loginId string, role string) bool {
 //
 //	loginId - 指定用户
 //	roleArray – 角色标识数组
-func (l *Logic) HasRoleAnd(loginId string, roleArray ...string) bool {
+func (l *logic) HasRoleAnd(loginId string, roleArray ...string) bool {
 	list, err := l.GetRoleList(loginId)
 	if err != nil {
 		return false
@@ -567,7 +624,7 @@ func (l *Logic) HasRoleAnd(loginId string, roleArray ...string) bool {
 //
 //	loginId - 指定用户
 //	roleArray – 角色标识数组
-func (l *Logic) CheckRoleOr(loginId string, roleArray ...string) bool {
+func (l *logic) CheckRoleOr(loginId string, roleArray ...string) bool {
 	list, err := l.GetRoleList(loginId)
 	if err != nil {
 		return false
@@ -586,7 +643,7 @@ func (l *Logic) CheckRoleOr(loginId string, roleArray ...string) bool {
 // GetPermissionList 获取：指定账号的权限码集合
 // 形参:
 // loginId – 指定账号id
-func (l *Logic) GetPermissionList(loginId string) []string {
+func (l *logic) GetPermissionList(loginId string) []string {
 	permissions, err := l.conf.permission.GetPermissionSlice(loginId, l.conf.LogicType)
 	if err != nil {
 		return []string{}
@@ -599,7 +656,7 @@ func (l *Logic) GetPermissionList(loginId string) []string {
 //
 //	loginId - 指定用户
 //	permission – 权限码
-func (l *Logic) HasPermission(loginId string, permission string) bool {
+func (l *logic) HasPermission(loginId string, permission string) bool {
 	slice, err := l.conf.permission.GetPermissionSlice(loginId, l.conf.LogicType)
 	if err != nil {
 		return false
@@ -611,7 +668,7 @@ func (l *Logic) HasPermission(loginId string, permission string) bool {
 // 形参:
 // loginId - 指定用户
 // permissionArray – 权限码数组
-func (l *Logic) HasPermissionAnd(loginId string, permissionArray ...string) bool {
+func (l *logic) HasPermissionAnd(loginId string, permissionArray ...string) bool {
 	slice, err := l.conf.permission.GetPermissionSlice(loginId, l.conf.LogicType)
 	if err != nil {
 		return false
@@ -629,7 +686,7 @@ func (l *Logic) HasPermissionAnd(loginId string, permissionArray ...string) bool
 // 形参:
 // loginId - 指定用户
 // permissionArray – 权限码数组
-func (l *Logic) HasPermissionOr(loginId string, permissionArray ...string) bool {
+func (l *logic) HasPermissionOr(loginId string, permissionArray ...string) bool {
 	slice, err := l.conf.permission.GetPermissionSlice(loginId, l.conf.LogicType)
 	if err != nil {
 		return false
@@ -647,7 +704,7 @@ func (l *Logic) HasPermissionOr(loginId string, permissionArray ...string) bool 
 // 形参:
 // loginId - 指定用户
 // path – 指定路由路径
-func (l *Logic) HasPathPermission(loginId string, path, method string) bool {
+func (l *logic) HasPathPermission(loginId string, path, method string) bool {
 	routeInfo, err := l.conf.permission.HasMethodPermission(loginId, l.conf.LogicType, path, method)
 	if err != nil {
 		return false
@@ -661,7 +718,7 @@ func (l *Logic) HasPathPermission(loginId string, path, method string) bool {
 // 形参：
 //
 //	tokenValue -- token值
-func (l *Logic) GetLoginDevice(tokenValue string) string {
+func (l *logic) GetLoginDevice(tokenValue string) string {
 	if len(tokenValue) == 0 {
 		return ""
 	}
@@ -687,7 +744,7 @@ func (l *Logic) GetLoginDevice(tokenValue string) string {
 // 形参
 // loginId - 登录用户
 // device - 登录设备
-func (l *Logic) GetTokenValueByLoginId(loginId string, device string) string {
+func (l *logic) GetTokenValueByLoginId(loginId string, device string) string {
 	// 获取所有的token切片
 	tokenSlice := l.GetTokenValueListByLoginId(loginId, device)
 	if len(tokenSlice) == 0 {
@@ -697,7 +754,7 @@ func (l *Logic) GetTokenValueByLoginId(loginId string, device string) string {
 }
 
 // GetTokenValueListByLoginId 获取指定id指定设备端的token切片
-func (l *Logic) GetTokenValueListByLoginId(loginId string, device string) []string {
+func (l *logic) GetTokenValueListByLoginId(loginId string, device string) []string {
 	ss := l.GetSessionBySessionId(loginId, false)
 	// 没有获取到session时
 	if len(ss.Id) == 0 {
@@ -717,31 +774,31 @@ func (l *Logic) GetTokenValueListByLoginId(loginId string, device string) []stri
 // ================== 返回相应的key =================
 
 // splicingDisableKey 拼接封禁账号key
-func (l *Logic) splicingDisableKey(loginId string) string {
+func (l *logic) splicingDisableKey(loginId string) string {
 	return l.conf.TokenName + ":" + l.conf.LogicType + ":disable:" + loginId
 }
 
 // splicingSessionKey 拼接sessionKey
-func (l *Logic) splicingSessionKey(loginId string) string {
+func (l *logic) splicingSessionKey(loginId string) string {
 	return l.GetTokenName() + ":" + l.conf.LogicType + ":session:" + loginId
 }
 
 // splicingKeyLastActivityTime
-func (l *Logic) splicingLastActivityTimeKey(tokenValue string) string {
+func (l *logic) splicingLastActivityTimeKey(tokenValue string) string {
 	return l.GetTokenName() + ":" + l.conf.LogicType + ":last-activity:" + tokenValue
 }
 
 // splicingTokenSessionKey 拼接tokenSessionKey
-func (l *Logic) splicingTokenSessionKey(tokenValue string) string {
+func (l *logic) splicingTokenSessionKey(tokenValue string) string {
 	return l.GetTokenName() + ":" + l.conf.LogicType + ":token-session:" + tokenValue
 }
 
 // splicingTokenValueKey 拼接tokenValueKey
-func (l *Logic) splicingTokenValueKey(tokenValue string) string {
+func (l *logic) splicingTokenValueKey(tokenValue string) string {
 	return l.conf.TokenName + ":" + l.conf.LogicType + ":token:" + tokenValue
 }
 
 // splicingSwitchKey 拼接切换用户key
-func (l *Logic) splicingSwitchKey(tokenValue string) string {
+func (l *logic) splicingSwitchKey(tokenValue string) string {
 	return l.GetTokenName() + ":" + l.conf.LogicType + ":switch:" + tokenValue
 }

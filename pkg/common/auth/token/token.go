@@ -65,7 +65,6 @@ type defaultTokenBuilder struct {
 }
 
 func (d *defaultTokenBuilder) Build(loginId string, logicType string, device string) string {
-
 	style := d.style
 	switch style {
 	case StyleUuid:
