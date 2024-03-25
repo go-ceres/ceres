@@ -1,7 +1,7 @@
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
-github.com/go-ceres/ceres v0.0.11 h1:3IAA2S0Z6F7AwSdVQpNYED4FwyGXZUzmh9WPs/Wu5T8=
-github.com/go-ceres/ceres v0.0.11/go.mod h1:M0kqfYSa7DyK67vNsKFcvUA0hAluibp0SIhibBUXFwU=
+github.com/go-ceres/ceres v0.0.12 h1:qWz/N3OFSntuxm2BQPjVipwVb05p4rvz1BlHYdMi0gQ=
+github.com/go-ceres/ceres v0.0.12/go.mod h1:M0kqfYSa7DyK67vNsKFcvUA0hAluibp0SIhibBUXFwU=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=

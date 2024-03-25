@@ -14,8 +14,8 @@ github.com/emicklei/proto v1.13.2 h1:z/etSFO3uyXeuEsVPzfl56WNgzcvIr42aQazXaQmFZY
 github.com/emicklei/proto v1.13.2/go.mod h1:rn1FgRS/FANiZdD2djyH7TMA9jdRDcYQ9IEN9yvjX0A=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
-github.com/go-ceres/ceres v0.0.11 h1:3IAA2S0Z6F7AwSdVQpNYED4FwyGXZUzmh9WPs/Wu5T8=
-github.com/go-ceres/ceres v0.0.11/go.mod h1:M0kqfYSa7DyK67vNsKFcvUA0hAluibp0SIhibBUXFwU=
+github.com/go-ceres/ceres v0.0.12 h1:qWz/N3OFSntuxm2BQPjVipwVb05p4rvz1BlHYdMi0gQ=
+github.com/go-ceres/ceres v0.0.12/go.mod h1:M0kqfYSa7DyK67vNsKFcvUA0hAluibp0SIhibBUXFwU=
 github.com/go-ceres/cli/v2 v2.2.3 h1:aJVixWviWj+5VXbgLMplSi4AGGGgDDeHGoPe0+vwDbE=
 github.com/go-ceres/cli/v2 v2.2.3/go.mod h1:rPaMrvbX1szi4EM1X5g7Ps3yroMx0TZ3zGzGZ4id+zM=
 github.com/golang/glog v1.2.0 h1:uCdmnmatrKCgMBlM4rMuJZWOkPDqdbZPnrMXDY4gI68=
